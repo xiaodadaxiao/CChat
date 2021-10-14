@@ -1,10 +1,16 @@
 <template>
-  <router-view></router-view>
+  <div class="home">
+    <router-view></router-view>
+  </div>
 </template>
 
 <script>
 export default {};
 </script>
 
-<style lang='less'>
+<style lang="less">
+.home {
+  width: 100vw;
+  height: 100vh;
+}
 </style>

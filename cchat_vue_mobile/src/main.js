@@ -4,8 +4,13 @@ import SocketIO from 'socket.io-client'
 import App from './App.vue'
 import router from './router'
 import store from './store'
+import initScreen from '@/utils/initScreen'
 
 Vue.config.productionTip = false
+/* 初始样式 */
+import '@/assets/css/reset.css'
+/* 初始化rem */
+initScreen()
 /* 注册vant */
 import '@/plugins/vant'
 

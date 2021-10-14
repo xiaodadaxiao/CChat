@@ -1,9 +1,16 @@
 const connection = require('../app/database')
 /* 用户相关数据库操作 */
 class UserService {
+    //根据邮箱查询用户
     async getUserByEmail(email) {
         const statement = `SELECT * FROM user WHERE email=?;`;
         const result = await connection.execute(statement, [email]);
+        return result[0];
+    }
+    //根据cid查询用户
+    async getUserByCid(cid) {
+        const statement = `SELECT * FROM user WHERE cid=?;`;
+        const result = await connection.execute(statement, [cid]);
         return result[0];
     }
     //创建用户

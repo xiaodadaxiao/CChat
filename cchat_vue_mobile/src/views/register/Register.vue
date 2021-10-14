@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <h2>注册</h2>
+  <div class="container">
+    <div class="title">注册CID</div>
     <div class="inputBox">
       <van-form validate-first :submit-on-enter="false" ref="form">
         <!-- 邮箱 -->
@@ -72,6 +72,7 @@
       </van-form>
       <van-button
         size="normal"
+        class="regiBtn"
         block
         round
         :loading="registerIsLoading"
@@ -80,6 +81,10 @@
         @click="registerClick"
         >注册</van-button
       >
+    </div>
+    <div class="login">
+      <span>已有CID账号?去</span>
+      <a class="goLogin" href="/login">登录</a>
     </div>
   </div>
 </template>
@@ -175,4 +180,31 @@ export default {
 };
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+.container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.title {
+  color: @app-color;
+  font-weight: bold;
+  font-size: 50rem;
+  padding-bottom: 20rem;
+}
+// .regiBtn {
+//   // width: 500rem;
+// }
+.login {
+  margin-top: 40rem;
+  font-size: 25rem;
+  color: #999;
+  .goLogin {
+    border-bottom: 1px solid @app-color;
+    color: @app-color;
+  }
+}
+</style>

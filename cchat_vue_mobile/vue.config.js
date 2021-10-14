@@ -12,8 +12,8 @@ module.exports = {
         loaderOptions: {
             less: {
                 globalVars: {
-                    "color-red": "#fd281a",
-                    "color-blue": "#1890ff",
+                    //公共样式变量
+                    hack: `true; @import '~@/assets/css/common.less';`
                 },
             }
         }
