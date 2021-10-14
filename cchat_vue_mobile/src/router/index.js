@@ -1,13 +1,12 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-
+import importComponent from './importComponent'
+import { checkLogin } from './guard'
 /* 
- 导入路由
+ 动态导入路由
 */
-const Home = () => import('@/views/home/Home')
-const Login = () => import('@/views/login/Login')
-const Register = () => import('@/views/register/Register')
-const RegisterSuccess = () => import('@/views/register/Success')
+const components = importComponent()
+
 Vue.use(VueRouter)
 
 const routes = [
@@ -17,26 +16,47 @@ const routes = [
   },
   {
     path: '/home',
-    component: Home
+    component: components.Home,
+    redirect: '/home/main',
+    children: [
+      {
+        path: 'chat',
+        component: components.Chat
+      },
+      {
+        path: 'main',
+        component: components.Main,
+        redirect: '/home/main/index',
+        children: [
+          { path: 'index', component: components.Index }
+        ]
+      }
+    ]
   },
   {
     path: '/login',
-    component: Login
+    component: components.Login
   },
   {
     path: '/register',
-    component: Register,
+    component: components.Register,
   },
   {
     path: '/register_success',
-    component: RegisterSuccess
+    component: components.Success
   }
 ]
+
 
 const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
   routes
+})
+//路由前置守卫
+router.beforeEach((to, from, next) => {
+
+  checkLogin(to, from, next);
 })
 
 export default router

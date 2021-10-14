@@ -16,5 +16,26 @@ class AuthMiddleware {
         ctx.token = token
         await next();
     }
+    //检查token
+    async checkToken(ctx, next) {
+        //去掉请求头默认前缀 获得token
+        const token = ctx.headers.authorization && ctx.headers.authorization.replace('Bearer ', '');
+        if (!token) {
+            return ctx.app.emit('error', new Error(errorTypes.NOT_TOKEN), ctx);
+        }
+
+        let tokenInfo;
+        try {
+            tokenInfo = jwt.verify(token, PUBLIC_KEY, {
+                algorithms: ['RS256']
+            })
+        } catch (err) {
+            return ctx.app.emit('error', { message: "token无效" }, ctx)
+        }
+        //{ cid: '10000', iat: 1634216295, exp: 1634216355 }// 秒 
+        ctx.cid = tokenInfo.cid;
+        ctx.tokenInfo = tokenInfo
+        await next()
+    }
 }
 module.exports = new AuthMiddleware()

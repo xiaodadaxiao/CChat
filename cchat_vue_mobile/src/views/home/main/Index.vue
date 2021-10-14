@@ -1,7 +1,6 @@
 <template>
-  <div class="home">
-    home
-    <router-view></router-view>
+  <div>
+    聊天列表。。。
   </div>
 </template>
 
@@ -15,8 +14,4 @@ export default {
 };
 </script>
 
-<style lang="less" scoped>
-.home {
-  font-size: 20rem;
-}
-</style>
+<style lang="less" scoped></style>

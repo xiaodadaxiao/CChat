@@ -74,6 +74,9 @@ export default {
         if (res.status === 200) {
           this.$toast.success("登录成功");
           localStorage.setItem("token", res.token);
+          this.$store.commit("useIsLogin", true);
+          //跳转首页
+          this.$router.replace("/home");
         } else {
           this.$toast.fail(res.message);
         }

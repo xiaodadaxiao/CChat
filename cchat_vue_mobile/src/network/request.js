@@ -9,10 +9,10 @@ const instance = axios.create({
 //请求拦截器
 instance.interceptors.request.use(
     (config) => {
-        //   config.headers = {
-        //     //请求头携带token
-        //     token: localStorage.getItem("token"),
-        //   };
+        config.headers = {
+            //请求头携带token
+            Authorization: localStorage.getItem('token')
+        };
         //最后传递处理后的数据
         return config;
     },

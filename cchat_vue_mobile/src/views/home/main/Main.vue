@@ -1,7 +1,7 @@
 <template>
-  <div class="home">
-    home
+  <div>
     <router-view></router-view>
+    maintarbar
   </div>
 </template>
 
@@ -15,8 +15,4 @@ export default {
 };
 </script>
 
-<style lang="less" scoped>
-.home {
-  font-size: 20rem;
-}
-</style>
+<style lang="less" scoped></style>
