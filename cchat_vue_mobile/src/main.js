@@ -1,6 +1,5 @@
 import Vue from 'vue'
-import VueSocketIO from 'vue-socket.io'
-import SocketIO from 'socket.io-client'
+
 import App from './App.vue'
 import router from './router'
 import store from './store'
@@ -13,14 +12,10 @@ import '@/assets/css/reset.css'
 initScreen()
 /* 注册vant */
 import '@/plugins/vant'
+/* 初始化socket.io */
+import '@/plugins/socket.js'
 
-// Vue.use(new VueSocketIO({
-//   debug: true,
-//   connection: SocketIO('http://localhost:3000'),
-//   vuex: {
-//     store,
-//   },
-// }))
+
 new Vue({
   router,
   store,

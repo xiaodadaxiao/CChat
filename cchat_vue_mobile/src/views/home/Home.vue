@@ -1,6 +1,5 @@
 <template>
   <div class="home">
-    home
     <router-view></router-view>
   </div>
 </template>
@@ -11,12 +10,21 @@ export default {
   data() {
     return {};
   },
+  created() {
+    /* 建立连接 */
+    //this.$socket.open();
+  },
+  destroyed() {
+    /* 断开连接 */
+    this.$socket.close();
+  },
   methods: {},
 };
 </script>
 
 <style lang="less" scoped>
 .home {
-  font-size: 20rem;
+  font-size: 30rem;
+  background-color: @app-bgc;
 }
 </style>

@@ -1,13 +1,24 @@
 import Vue from 'vue';
-import { Button, Icon, Form, Field, Col, Row, Toast, CountDown, Tabbar, TabbarItem } from 'vant';
+import {
+    Button, Icon, Toast, CountDown, Badge,
+    Form, Field,
+    Col, Row,
+    Cell, CellGroup,
+    Tabbar, TabbarItem, NavBar, IndexBar, IndexAnchor,
+    Image as VanImage,
+    PullRefresh, SwipeCell
+} from 'vant';
 
-Vue.use(Button)
-    .use(Icon)
-    .use(Form)
-    .use(Field)
-    .use(Col)
-    .use(Row)
-    .use(Toast)
-    .use(CountDown)
-    .use(Tabbar)
-    .use(TabbarItem)
+const list = [
+    Button, Icon, Toast, CountDown, Badge,
+    Form, Field,
+    Col, Row,
+    Cell, CellGroup,
+    Tabbar, TabbarItem, NavBar, IndexBar, IndexAnchor,
+    VanImage,
+    PullRefresh, SwipeCell
+];
+
+list.forEach(item => {
+    Vue.use(item)
+})

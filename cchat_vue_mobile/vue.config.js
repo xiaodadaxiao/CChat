@@ -8,14 +8,18 @@ module.exports = {
         config.resolve.alias.
             set("@", resolvePath("src"))
     },
+    //hack: `true; @import './assets/css/common.less';`
+
     css: {
         loaderOptions: {
             less: {
-                globalVars: {
-                    //公共样式变量
+                modifyVars: {
+                    // 或者可以通过 less 文件覆盖（文件路径为绝对路径）
                     hack: `true; @import '~@/assets/css/common.less';`
                 },
             }
-        }
+
+        },
     }
+
 }

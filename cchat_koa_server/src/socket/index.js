@@ -8,6 +8,9 @@ const io = Socket(server, {
 io.on('connection', (socket) => {
     console.log(socket.id + ' 连接');
     socket.on('hello', (data) => { console.log(data) })
+    socket.on('disconnect', () => {
+        console.log(socket.id + '断开链接')
+    })
 
 })
 

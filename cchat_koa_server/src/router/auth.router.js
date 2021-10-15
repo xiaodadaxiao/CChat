@@ -7,7 +7,8 @@ const authRouter = new Router({ prefix: "/auth" })
 
 //校验token
 authRouter.post('/token',
-    authMiddleware.checkToken,
+    authMiddleware.checkToken,//检查token
+    authMiddleware.updateToken,//是否需要更新token
     authController.checkToken
 )
 

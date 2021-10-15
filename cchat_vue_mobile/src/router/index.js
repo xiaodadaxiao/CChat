@@ -28,7 +28,9 @@ const routes = [
         component: components.Main,
         redirect: '/home/main/index',
         children: [
-          { path: 'index', component: components.Index }
+          { path: 'index', component: components.Index },
+          { path: 'friendslist', component: components.FriendsList },
+          { path: 'other', component: components.Other }
         ]
       }
     ]

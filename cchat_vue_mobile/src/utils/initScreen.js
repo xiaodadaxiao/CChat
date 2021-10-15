@@ -10,6 +10,7 @@ function init() {
     }
     let size = screenW / 750
     document.querySelector('html').style.fontSize = size + 'px'
+
 }
 export default function initScreen() {
     init()

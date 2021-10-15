@@ -1,8 +1,10 @@
 import axios from "axios";
 
+const baseURL1 = 'http://localhost:3000';
+const baseURL2 = 'http://192.168.8.101:3000';
 //axios实例
 const instance = axios.create({
-    baseURL: "http://localhost:3000",
+    baseURL: baseURL2,
     //请求时间最长
     timeout: 10000,
 })

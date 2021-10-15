@@ -24,8 +24,14 @@ export async function checkLogin(to, from, next) {
             store.commit('useIsLogin', true);
             return next()
         }
+        if (res.status == 201) {
+            store.commit('useIsLogin', true);
+            //更新token
+            localStorage.setItem('token', res.token)
+            return next()
+        }
     }
     //没有登录，且token验证不通过
     //登录界面
-    next('login')
+    next('/login')
 }
