@@ -49,10 +49,10 @@ class AuthMiddleware {
         const minTime = 1000 * 60 * 60 * 24 * 1;//结束时间小于1天内，则更新token
         if (!(timeDiff < minTime)) {
             //并不是小于一天，不用更新
-            console.log('无需更新token', timeDiff);
+            // console.log('无需更新token', timeDiff);
             await next();
         } else {
-            console.log('需要更新token');
+            // console.log('需要更新token');
             ctx.newToken = getToken(cid)
             await next();
         }

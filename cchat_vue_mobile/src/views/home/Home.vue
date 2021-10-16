@@ -24,7 +24,7 @@ export default {
 
 <style lang="less" scoped>
 .home {
-  font-size: 30rem;
+  // font-size: 5vw;
   background-color: @app-bgc;
 }
 </style>

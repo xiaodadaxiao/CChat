@@ -4,9 +4,11 @@ import {
     Form, Field,
     Col, Row,
     Cell, CellGroup,
-    Tabbar, TabbarItem, NavBar, IndexBar, IndexAnchor,
+    Tabbar, TabbarItem, NavBar, IndexBar, IndexAnchor, Tab, Tabs,
     Image as VanImage,
-    PullRefresh, SwipeCell
+    PullRefresh, SwipeCell,
+    Empty, Popup,
+    Search
 } from 'vant';
 
 const list = [
@@ -14,9 +16,11 @@ const list = [
     Form, Field,
     Col, Row,
     Cell, CellGroup,
-    Tabbar, TabbarItem, NavBar, IndexBar, IndexAnchor,
+    Tabbar, TabbarItem, NavBar, IndexBar, IndexAnchor, Tab, Tabs,
     VanImage,
-    PullRefresh, SwipeCell
+    PullRefresh, SwipeCell,
+    Empty, Popup,
+    Search
 ];
 
 list.forEach(item => {

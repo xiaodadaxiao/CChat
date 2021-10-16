@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS `user`  (
   `email` VARCHAR(50)  NOT NULL UNIQUE,
   `cid` VARCHAR(20)  NOT NULL UNIQUE,
   `password` VARCHAR(50)  NOT NULL,
-  `aratar_url` VARCHAR(200) ,
+  `avatar_url` VARCHAR(200) ,
   `signature` VARCHAR(200) ,
   `state` INT DEFAULT 0,
   `createAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

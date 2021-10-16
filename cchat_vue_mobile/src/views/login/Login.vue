@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="login-container">
     <div class="title">登录</div>
     <div class="inputBox">
       <van-form ref="form">
@@ -19,11 +19,13 @@
           type="password"
           name="password"
           clearable
+          @keyup.enter.native="loginClick"
           :rules="[
             { pattern: passwordExp, message: '密码至少包含6位数字和英文' },
           ]"
         />
-        <div style="margin: 20rem;">
+
+        <div>
           <van-button
             round
             block
@@ -91,27 +93,30 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.container {
+.login-container {
   width: 100%;
   height: 100%;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-content: center;
-  font-size: 50rem;
+}
+.inputBox {
+  margin: 10vh 0;
 }
 .title {
   color: @app-color;
   font-weight: bold;
-  font-size: 70rem;
-  padding-bottom: 20rem;
+  font-size: 10vw;
+  padding-bottom: 1vw;
 }
 .other {
-  margin-top: 20rem;
-  font-size: 30rem;
+  margin-top: 2vw;
+  font-size: 2vw;
   display: flex;
   justify-content: space-between;
-  padding: 0 15rem;
+  padding: 0 2vw;
   & > a {
     color: #999;
   }

@@ -93,45 +93,51 @@ export default {
 
 <style lang="less" scoped>
 .index-container {
-  padding-top: 100rem;
+  padding-top: 46px; //navbar高度
 }
 
 .freshbox {
-  height: calc(100vh - 100rem - 120rem);
+  height: calc(100vh - 50px - 46px); //100vh-tabbar高度-navbar高度
   overflow: auto;
 }
 //单个好友聊天内容
 .chatitem {
   display: flex;
   justify-content: space-between;
-  height: 140rem;
-  border-bottom: 1px solid #ccc;
   background-color: #fff;
-  padding: 5rem 0;
-  & > div {
-    height: 100%;
+  padding: 1vh 1vw;
+  //底部边框线
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    right: -2px;
+    width: 87vw;
+    height: 0.6px;
+    background-color: @border-c;
   }
   //好友头像
   .img {
-    width: 130rem;
-    height: 130rem;
-    border-radius: 12rem;
+    width: 12vw;
+    height: 12vw;
+    border-radius: 1.5vw;
   }
   .message {
+    height: 8vh;
     flex: 1;
-    & > div {
-      box-sizing: border-box;
-      padding: 5rem 10rem;
-    }
+    padding: 0 1vw;
+    display: flex;
+    flex-direction: column;
     .name {
-      font-size: 40rem;
-      line-height: 80rem;
-      height: 80rem;
+      font-size: 4.5vw;
+      height: 4.5vh;
+      line-height: 4.5vh;
     }
     .value {
-      line-height: 50rem;
-      height: 50rem;
-      color: #999;
+      height: 3vh;
+      line-height: 3vh;
+      color: @info-c;
+      font-size: 4vw;
       display: -webkit-box;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -145,17 +151,19 @@ export default {
     display: flex;
     flex-direction: column;
     justify-content: space-around;
-    width: 100rem;
     .time {
-      height: 30rem;
+      height: 3vh;
+      line-height: 3vh;
+
+      width: 10vw;
       color: #999;
-      // line-height: 100rem;
     }
     .count {
       // border-color: @app-bgc;
+      padding: 0.1vh;
     }
 
-    font-size: 30rem;
+    font-size: 4vw;
   }
 }
 //右边滑动操作栏

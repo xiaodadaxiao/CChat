@@ -192,15 +192,12 @@ export default {
 .title {
   color: @app-color;
   font-weight: bold;
-  font-size: 50rem;
-  padding-bottom: 20rem;
+  font-size: 10vw;
+  padding-bottom: 5vh;
 }
-// .regiBtn {
-//   // width: 500rem;
-// }
 .login {
-  margin-top: 40rem;
-  font-size: 25rem;
+  margin-top: 5vh;
+  font-size: 4vw;
   color: #999;
   .goLogin {
     border-bottom: 1px solid @app-color;
