@@ -2,59 +2,53 @@
   <div class="friend-container">
     <!-- navbar -->
     <van-nav-bar fixed title="好友列表" />
-    <!-- 添加好友和好友信息 -->
-    <van-cell title="好友申请" center is-link title-style="padding-left:20px">
+    <!-- 添加好友单元格 -->
+    <van-cell title="添加好友/群" center is-link title-style="padding-left:20px" @click="showAddFriend">
       <template #icon>
-        <van-image
-          width="30"
-          height="30"
-          :src="require('@/assets/img/friend-news.png')"
-        />
+        <van-image width="30" height="30" :src="require('@/assets/img/add-friend.png')" />
       </template>
-      <!-- 使用 right-icon 插槽来自定义右侧图标 -->
       <template #right-icon>
-        <van-badge :content="200" max="99" />
+        <van-badge :content="friendApplyList.length > 0 ? friendApplyList.length : ''" max="99" />
+        <van-icon name="arrow" />
       </template>
     </van-cell>
-    <van-cell
-      title="添加好友/群"
-      center
-      is-link
-      title-style="padding-left:20px"
-      @click="showAddFriend"
-    >
+    <!-- 我的群聊 -->
+    <van-cell title="我的群聊" center is-link title-style="padding-left:20px">
       <template #icon>
-        <van-image
-          width="30"
-          height="30"
-          :src="require('@/assets/img/add-friend.png')"
-        />
+        <van-image width="30" height="30" :src="require('@/assets/img/group.png')" />
       </template>
     </van-cell>
-    <!-- 添加界面 -->
-    <van-popup
-      v-model="isShowAddFriend"
-      position="bottom"
-      :style="{ height: '30vh', 'padding-top': '2vh' }"
-    >
+    <!-- 搜索界面 -->
+    <van-popup v-model="isShowAddFriend" position="bottom" :style="{ height: '80vh', 'padding-top': '2vh' }">
       <van-tabs type="card" animated color="#ff6900">
-        <van-tab title="添加好友">
-          <van-search
-            v-model="inputCid"
-            placeholder="输入要添加的用户CID"
-            show-action
-          >
+        <!-- 好友 -->
+        <van-tab :title="'好友申请(' + friendApplyList.length + ')'">
+          <van-search v-model.trim="inputCid" placeholder="输入要添加的用户CID" show-action>
             <template #action>
-              <van-button @click="onSearchCid" size="small">搜索</van-button>
+              <van-button @click="onSearchCid" size="small">添加</van-button>
             </template>
           </van-search>
+          <!-- 申请列表 -->
+          <van-divider>好友申请列表</van-divider>
+          <div class="apply-list">
+            <van-cell
+              :title="item.name"
+              v-for="item in friendApplyList"
+              :key="item.cid"
+              is-link
+              :label="item.message"
+              title-class="padding-left-2"
+              @click="goInfo('user', item.cid)"
+            >
+              <template #icon>
+                <van-image width="40" height="40" :src="item.avatarUrl" />
+              </template>
+            </van-cell>
+          </div>
         </van-tab>
-        <van-tab title="添加群">
-          <van-search
-            v-model="inputCid"
-            placeholder="输入要添加的群聊GID"
-            show-action
-          >
+        <!-- 群聊 -->
+        <van-tab title="群聊申请(0)">
+          <van-search v-model.trim="inputGid" placeholder="输入要添加的群聊GID" show-action>
             <template #action>
               <van-button @click="onSearchGid" size="small">搜索</van-button>
             </template>
@@ -87,7 +81,9 @@
 </template>
 
 <script>
-import { getFriendList } from "@/network/friend";
+import { mapState } from 'vuex';
+import { getFriendList } from '@/network/friend';
+import { searchUser } from '@/network/user';
 export default {
   props: {},
   data() {
@@ -95,8 +91,8 @@ export default {
       indexList: [], //好友列表索引
       friendList: {}, //好友列表
       isShowAddFriend: false, //是否展示添加面板
-      inputCid: "", //输入的cid
-      inputGid: "", //输入的gid
+      inputCid: '', //输入的cid
+      inputGid: '', //输入的gid
     };
   },
   async mounted() {
@@ -107,18 +103,31 @@ export default {
         this.friendList = res.data;
         this.indexList = Object.keys(res.data); //获得索引数组
       } else {
-        return this.$toast.fail("请求好友列表失败");
+        return this.$toast.fail('请求好友列表失败');
       }
     } catch (error) {
-      this.$toast.fail("请求好友列表错误");
+      this.$toast.fail('请求好友列表错误');
     }
   },
   methods: {
     showAddFriend() {
       this.isShowAddFriend = true;
     },
-    onSearchCid() {}, //搜索用户
+    async onSearchCid() {
+      if (this.inputCid === '') return;
+      const res = await searchUser(this.inputCid);
+      if (res.status !== 200) return this.$toast.fail('用户不存在');
+      //跳转到用户信息
+      this.$router.push('/home/user/' + this.inputCid);
+    }, //搜索用户
     onSearchGid() {}, //搜索群
+    //点击去用户信息
+    goInfo(type, id) {
+      if (type == 'user') this.$router.push('/home/user/' + id);
+    },
+  },
+  computed: {
+    ...mapState(['friendApplyList']),
   },
 };
 </script>
@@ -128,9 +137,11 @@ export default {
   padding-top: 46px; //navbar高度
 }
 .listBox {
-  height: calc(
-    100vh - 50px - 46px - 100px
-  ); //100vh-tabbar高度-navbar高度 -头部添加好友按钮
-  overflow: auto;
+  height: calc(100vh - 50px - 46px - 50px); //100vh-tabbar高度-navbar高度 -头部添加好友按钮
+  overflow: scroll;
+}
+.apply-list {
+  height: 55vh;
+  overflow: scroll;
 }
 </style>

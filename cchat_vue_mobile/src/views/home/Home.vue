@@ -10,7 +10,7 @@ export default {
   data() {
     return {};
   },
-  created() {
+  async created() {
     /* 建立连接 */
     //this.$socket.open();
   },
