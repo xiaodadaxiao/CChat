@@ -40,6 +40,16 @@ const routes = [
         path: 'user/:cid',
         component: components.UserInfo,
       },
+      //群信息
+      {
+        path: 'group/:gid',
+        redirect: '/home/group/:gid/info',
+        component: components.Group,
+        children: [
+          { path: 'info', component: components.GroupInfo },
+          { path: 'admin', component: components.GroupAdmin },
+        ],
+      },
     ],
   },
   {

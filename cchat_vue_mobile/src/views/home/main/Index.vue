@@ -1,19 +1,9 @@
 <template>
   <div class="index-container">
     <!-- 顶部导航栏 -->
-    <van-nav-bar
-      title="CChat"
-      fixed
-      left-arrow
-      @click-left="leftCick"
-      @click-right="rightClick"
-    >
+    <van-nav-bar title="CChat" fixed left-arrow @click-left="leftCick" @click-right="rightClick">
       <template #left>
-        <van-image
-          width="40"
-          height="40"
-          src="https://img01.yzcdn.cn/vant/cat.jpeg"
-        />
+        <van-image width="40" height="40" src="https://img01.yzcdn.cn/vant/cat.jpeg" />
       </template>
       <!-- 头部右侧 -->
       <template #right>
@@ -27,37 +17,23 @@
         <van-swipe-cell v-for="(ittem, index) in 10">
           <div class="chatitem">
             <!-- 好友头像 -->
-            <van-image
-              round
-              src="https://img01.yzcdn.cn/vant/cat.jpeg"
-              class="img"
-            />
+            <van-image round src="https://img01.yzcdn.cn/vant/cat.jpeg" class="img" />
             <!-- 好友名称和聊天内容 -->
             <div class="message">
               <div class="name">刘德华</div>
-              <div class="value">
+              <div class="value show-one-row">
                 我是刘德华，很高兴见到你，因为实打实的阿三大苏打
               </div>
             </div>
             <!-- 最后聊天时间 -->
             <div class="right">
               <div class="time">11:45</div>
-              <van-badge
-                color="#ff6900"
-                :content="20"
-                class="count"
-                :max="10"
-              />
+              <van-badge color="#ff6900" :content="20" class="count" :max="10" />
             </div>
           </div>
           <!-- 右滑操作 -->
           <template #right>
-            <van-button
-              square
-              text="删除"
-              type="danger"
-              class="delete-button"
-            />
+            <van-button square text="删除" type="danger" class="delete-button" />
           </template>
         </van-swipe-cell>
       </div>
@@ -76,16 +52,16 @@ export default {
   },
   methods: {
     onRefresh() {
-      console.log("下拉刷新");
+      console.log('下拉刷新');
       setTimeout(() => {
         this.isLoading = false;
       }, 500);
     },
     leftCick() {
-      console.log("左侧点击");
+      console.log('左侧点击');
     },
     rightClick() {
-      console.log("右侧点击");
+      console.log('右侧点击');
     },
   },
 };
@@ -108,7 +84,7 @@ export default {
   padding: 1vh 1vw;
   //底部边框线
   &::after {
-    content: "";
+    content: '';
     position: absolute;
     bottom: 0;
     right: -2px;
@@ -138,13 +114,6 @@ export default {
       line-height: 3vh;
       color: @info-c;
       font-size: 4vw;
-      display: -webkit-box;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      word-wrap: break-word;
-      white-space: normal !important;
-      -webkit-line-clamp: 1;
-      -webkit-box-orient: vertical;
     }
   }
   .right {

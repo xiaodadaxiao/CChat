@@ -24,6 +24,8 @@ import {
   Popup,
   Search,
   Divider,
+  Switch,
+  Tag,
 } from 'vant';
 
 const list = [
@@ -51,6 +53,8 @@ const list = [
   Popup,
   Search,
   Divider,
+  Switch,
+  Tag,
 ];
 
 list.forEach(item => {

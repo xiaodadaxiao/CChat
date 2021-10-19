@@ -13,12 +13,12 @@
       </template>
     </van-cell>
     <!-- 我的群聊 -->
-    <van-cell title="我的群聊" center is-link title-style="padding-left:20px">
+    <van-cell title="我的群聊" center is-link title-style="padding-left:20px" @click="showGroup">
       <template #icon>
         <van-image width="30" height="30" :src="require('@/assets/img/group.png')" />
       </template>
     </van-cell>
-    <!-- 搜索界面 -->
+    <!-- 搜索和通知界面 -->
     <van-popup v-model="isShowAddFriend" position="bottom" :style="{ height: '80vh', 'padding-top': '2vh' }">
       <van-tabs type="card" animated color="#ff6900">
         <!-- 好友 -->
@@ -56,6 +56,27 @@
         </van-tab>
       </van-tabs>
     </van-popup>
+    <!-- 群聊列表界面 -->
+    <van-popup v-model="isShowGroupList" position="bottom" :style="{ height: '80vh', 'padding-top': '2vh' }">
+      <van-divider>我的群聊</van-divider>
+      <van-cell
+        :title="group.gname"
+        center
+        is-link
+        title-style="padding-left:20px"
+        @click="goInfo('group', group.gid)"
+        v-for="group in groupList"
+        :key="group.gid"
+      >
+        <template #icon>
+          <van-image width="30" height="30" :src="group.avatarUrl" />
+        </template>
+        <template #right-icon>
+          <van-icon v-if="group.remind === 0" :name="require('@/assets/img/no-remind.png')" />
+          <van-icon name="arrow" />
+        </template>
+      </van-cell>
+    </van-popup>
     <!-- 好友列表 -->
     <div class="listBox" v-if="Object.keys(friendList).length > 0">
       <van-index-bar :index-list="indexList" :sticky="false">
@@ -83,6 +104,7 @@
 <script>
 import { mapState } from 'vuex';
 import { getFriendList } from '@/network/friend';
+import { getGroupList, searchGroup } from '@/network/group';
 import { searchUser } from '@/network/user';
 export default {
   props: {},
@@ -90,7 +112,9 @@ export default {
     return {
       indexList: [], //好友列表索引
       friendList: {}, //好友列表
+      groupList: [], //群聊列表
       isShowAddFriend: false, //是否展示添加面板
+      isShowGroupList: false, //是否展示群聊列表面板
       inputCid: '', //输入的cid
       inputGid: '', //输入的gid
     };
@@ -120,10 +144,33 @@ export default {
       //跳转到用户信息
       this.$router.push('/home/user/' + this.inputCid);
     }, //搜索用户
-    onSearchGid() {}, //搜索群
-    //点击去用户信息
+    async onSearchGid() {
+      try {
+        const res = await searchGroup(this.inputGid);
+        if (res.status !== 200) return this.$toast.fail('群聊不存在');
+        //跳转到用户信息
+        this.$router.push('/home/group/' + this.inputGid);
+      } catch (error) {
+        console.log(error);
+        this.$toast.fail('请求失败');
+      }
+    }, //搜索群
+    //点击去信息界面
     goInfo(type, id) {
       if (type == 'user') this.$router.push('/home/user/' + id);
+      if (type == 'group') this.$router.push('/home/group/' + id);
+    },
+    //点击显示群聊列表
+    async showGroup() {
+      this.isShowGroupList = true;
+      try {
+        const res = await getGroupList();
+        if (res.status !== 200) return this.$toast.fail(res.message);
+        this.groupList = res.data;
+      } catch (error) {
+        console.log(error);
+        this.$toast.fail('请求群聊列表失败');
+      }
     },
   },
   computed: {

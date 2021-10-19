@@ -1,15 +1,8 @@
 /* 群状态常量 */
-exports.NORMAL = 0;//正常
-exports.BANTALK = 1;//禁言
+exports.NORMAL = 0; //正常
+exports.BANTALK = 1; //禁言
 
-/* 群用户状态常量 */
-exports.USER_NORMAL = 0;//正常
-exports.USER_BANTALK = 1;//禁言
-/* 群用户角色常量 */
-exports.USER_ROLE_NORMAL = 0;//正常
-exports.USER_ROLE_LEADER = 1;//群主
-/* 群申请状态常量 */
-exports.APPLY_WAITING = 0;//等待中
-exports.APPLY_ACCEPTED = 1;//已接受
-exports.APPLY_REJECTED = 2;//已拒绝
-exports.APPLY_BLACKLIST = 3;//黑名单
+/* 用户与群关系 */
+exports.RELATION_STRANGER = 'STRANGER'; //陌生人
+exports.RELATION_JOIN = 'JOIN'; //已加入
+exports.RELATION_LEADER = 'LEADER'; //群主

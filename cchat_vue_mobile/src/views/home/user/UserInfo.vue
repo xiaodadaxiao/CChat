@@ -6,10 +6,12 @@
       <!-- 用户信息展示 -->
       <div class="info">
         <van-image class="img" radius="10" :src="userInfo.avatarUrl" />
-        <div class="big-name">{{ relation.type == 'FRIEND' ? relation.info.nickname : userInfo.name }}</div>
-        <div class="small-name">CID:{{ userInfo.cid }} {{ relation.type == 'FRIEND' ? '昵称：' + userInfo.name : '' }}</div>
+        <div class="big-name">{{ relation.type == userTypes.RELATION_FRIEND ? relation.info.nickname : userInfo.name }}</div>
+        <div class="small-name">
+          CID:{{ userInfo.cid }} {{ relation.type == userTypes.RELATION_FRIEND ? '昵称：' + userInfo.name : '' }}
+        </div>
         <div class="signature">{{ userInfo.signature }}</div>
-        <div class="apply-message" v-if="relation.type == 'ADDING_ME'">
+        <div class="apply-message" v-if="relation.type == userTypes.RELATION_ADDING_ME">
           <span class="tip"> [对方正在申请添加你为好友] : </span>
           <span>{{ relation.info.message }}</span>
         </div>
@@ -17,11 +19,21 @@
 
       <!-- 操作栏 -->
       <div class="handle">
-        <van-button block color="#ff6900" v-if="relation.type == 'FRIEND'" @click="clickChat"> 发送消息</van-button>
-        <van-button block type="info" @click="showPopup" v-if="relation.type == 'STRANGER'">申请添加好友</van-button>
-        <van-button block type="default" disabled v-if="relation.type == 'ME_ADDING'">已发送好友请求</van-button>
-        <van-button block type="primary" v-if="relation.type == 'ADDING_ME'" @click="agree">同意-添加好友请求</van-button>
-        <van-button block type="danger" v-if="relation.type == 'ADDING_ME'" @click="reject">拒绝-添加好友请求</van-button>
+        <van-button block color="#ff6900" v-if="relation.type == userTypes.RELATION_FRIEND" @click="clickChat">
+          发送消息
+        </van-button>
+        <van-button block type="info" @click="showPopup" v-if="relation.type == userTypes.RELATION_STRANGER">
+          申请添加好友
+        </van-button>
+        <van-button block type="default" disabled v-if="relation.type == userTypes.RELATION_ME_ADDING">
+          已发送好友请求
+        </van-button>
+        <van-button block type="primary" v-if="relation.type == userTypes.RELATION_ADDING_ME" @click="agree">
+          同意-添加好友请求
+        </van-button>
+        <van-button block type="danger" v-if="relation.type == userTypes.RELATION_ADDING_ME" @click="reject">
+          拒绝-添加好友请求
+        </van-button>
       </div>
       <!-- 添加好友面板 -->
       <van-popup v-model="isShowPoupup" round position="bottom" :style="{ height: '30vh' }">
@@ -36,12 +48,14 @@
 </template>
 
 <script>
+import * as userTypes from '@/constant/user';
 import { getUserInfo } from '@/network/user';
 import { addFriendApply, agreeApply, rejectApply } from '@/network/friend';
 export default {
   props: {},
   data() {
     return {
+      userTypes,
       isShowPoupup: false,
       userCid: '',
       myCid: '',
@@ -50,6 +64,7 @@ export default {
       inputText: '',
     };
   },
+
   async mounted() {
     this.userCid = this.$route.params.cid;
     //请求用户信息
