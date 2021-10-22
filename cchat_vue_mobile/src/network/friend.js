@@ -10,7 +10,7 @@ export function getFriendList() {
 }
 
 //请求申请列表
-export function getApplyList() {
+export function getFriendApplyList() {
   return request({
     url: '/friend/apply',
     method: 'get',

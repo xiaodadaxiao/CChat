@@ -82,5 +82,39 @@ class MemberController {
       console.log(error);
     }
   }
+
+  //移除群用户
+  async removeUser(ctx, next) {
+    const adminCid = ctx.tokenInfo.cid;
+    const { gid, cid: userCid } = ctx.request.params;
+
+    try {
+      if (adminCid === userCid) return ctx.app.emit('error', { message: '不能移除自己' }, ctx);
+      //查询用户是否在群
+      const [result] = await memberService.getOneMember(gid, userCid);
+      if (!result) return ctx.app.emit('error', { message: '该用户不在群聊' }, ctx);
+      //移除
+      await memberService.removeUserByCid(gid, userCid);
+
+      ctx.body = { status: 200, message: '移除成功' };
+    } catch (error) {
+      console.log(error);
+      ctx.app.emit('error', { message: '移除用户失败' }, ctx);
+    }
+  }
+
+  //退出群聊
+  async quit(ctx, next) {
+    const cid = ctx.tokenInfo.cid;
+    const gid = ctx.request.params.gid;
+    try {
+      if (ctx.groupInfo['leader_cid'] == cid) return ctx.app.emit('error', { message: '群主无法退出群聊' }, ctx);
+      await memberService.removeUserByCid(gid, cid);
+      ctx.body = { status: 200, message: '退出成功' };
+    } catch (error) {
+      console.log(error);
+      ctx.app.emit('error', { message: '退出群聊错误' }, ctx);
+    }
+  }
 }
 module.exports = new MemberController();

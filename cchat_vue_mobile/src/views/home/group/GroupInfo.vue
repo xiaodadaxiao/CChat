@@ -38,7 +38,7 @@
             <van-image width="50" height="50" :src="member.avatarUrl" />
             <div class="name show-one-row">{{ member.name }}</div>
           </div>
-          <div class="mem">
+          <div class="mem" @click="showInviteFriend">
             <van-image width="50" height="50" :src="require('@/assets/img/add.png')" />
             <div class="name show-one-row">添加</div>
           </div>
@@ -46,9 +46,13 @@
       </div>
 
       <div class="handle">
-        <van-button type="danger" v-if="relation.type == groupTypes.RELATION_JOIN" block>退出群聊</van-button>
-        <van-button type="danger" v-if="relation.type == groupTypes.RELATION_LEADER" block>解散群聊</van-button>
-        <van-button type="primary" v-if="relation.type == groupTypes.RELATION_STRANGER" block>申请加入群聊</van-button>
+        <van-button type="danger" v-if="relation.type == groupTypes.RELATION_JOIN" block @click="quitClick">退出群聊</van-button>
+        <van-button type="danger" v-if="relation.type == groupTypes.RELATION_LEADER" block @click="removeClick"
+          >解散群聊</van-button
+        >
+        <van-button type="primary" v-if="relation.type == groupTypes.RELATION_STRANGER" block @click="applyClick"
+          >申请加入群聊</van-button
+        >
       </div>
     </div>
     <!-- 群成员列表 -->
@@ -85,11 +89,41 @@
         </template>
       </van-field>
     </van-popup>
+    <!-- 邀请好友列表 -->
+    <van-popup v-model="isShowInviteFriend" position="bottom" :style="{ height: '50vh' }">
+      <van-divider>好友列表</van-divider>
+      <van-button type="info" :disabled="selectCount <= 0" @click="inviteClick">邀请 {{ selectCount }} 位好友</van-button>
+      <van-cell
+        :title="friend.nickname"
+        center
+        is-link
+        title-style="padding-left:20px"
+        v-for="friend in inviteFriendList"
+        :key="friend.cid"
+      >
+        <template #icon>
+          <van-image @click="goUserInfo(friend.cid)" width="30" height="30" :src="friend.avatarUrl" />
+        </template>
+        <template #right-icon>
+          <van-checkbox v-model="friend.select" :disabled="friend.isInGroup" />
+        </template>
+      </van-cell>
+    </van-popup>
   </div>
 </template>
 
 <script>
-import { getGroupInfo, getMemberList, changeNickname, changeRemind } from '@/network/group';
+import {
+  getGroupInfo,
+  getMemberList,
+  changeNickname,
+  changeRemind,
+  quit,
+  apply,
+  getFriend,
+  inviteUsers,
+  removeGroup,
+} from '@/network/group';
 import * as groupTypes from '@/constant/group';
 export default {
   data() {
@@ -97,6 +131,7 @@ export default {
       isShowList: false,
       isShowNotice: false,
       isShowNickname: false,
+      isShowInviteFriend: false,
       inputNickname: '',
       groupTypes,
       gid: '',
@@ -104,6 +139,7 @@ export default {
       relation: { info: {} },
       isRemind: true, //是否接收消息
       memberList: [], //群用户
+      inviteFriendList: [], //邀请好友列表
     };
   },
   async created() {
@@ -139,6 +175,9 @@ export default {
         const res = await getMemberList(this.gid);
         if (res.status != 200) return $toast.fail(res.message);
         this.memberList = res.data;
+        this.memberList.forEach(m => {
+          m.select = false;
+        });
       } catch (error) {
         console.log(error);
         $toast.fail('请求失败');
@@ -177,6 +216,97 @@ export default {
         console.log(error);
         this.$toast.fail('修改失败');
       }
+    },
+    //退出群聊
+    async quitClick() {
+      try {
+        const confirm = await this.$dialog.confirm({
+          title: '退出群聊',
+          message: '是否要退出群聊？',
+        });
+        if (confirm != 'confirm') return;
+        const res = await quit(this.gid);
+        if (res.status !== 200) return this.$toast.fail(res.message);
+        this.$toast.success('退出成功');
+        this.init();
+      } catch (error) {
+        if (error == 'cancel') return;
+        console.log(error);
+        this.$toast.fail('退出失败');
+      }
+    },
+    //申请加入
+    async applyClick() {
+      try {
+        const res = await apply(this.gid);
+        if (res.status !== 200) return this.$toast.fail(res.message);
+        await this.init();
+        this.$toast.success('申请成功，等待群主确认');
+      } catch (error) {
+        console.log(error);
+        this.$toast.fail('申请失败');
+      }
+    },
+    //展示邀请好友列表
+    async showInviteFriend() {
+      this.isShowInviteFriend = true;
+      try {
+        //请求好友列表
+        const res = await getFriend(this.gid);
+        if (res.status !== 200) return this.$toast.fail(res.message);
+        this.inviteFriendList = res.data;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    //点击邀请好友
+    async inviteClick() {
+      let list = [];
+      this.inviteFriendList.forEach(f => {
+        if (f.select) list.push(f.cid);
+      });
+
+      if (list.length <= 0) return;
+      try {
+        const res = await inviteUsers(this.gid, list);
+
+        if (res.status == 200) this.$toast.success('邀请成功');
+        if (res.status == 201) this.$toast.success(`成功邀请${res.applyCount}好友`);
+        if (res.status == 400) this.$toast.fail('邀请失败');
+        this.isShowInviteFriend = false;
+      } catch (error) {
+        console.log(error);
+        this.$toast.fail('邀请错误');
+      }
+    },
+    //点击解散群
+    async removeClick() {
+      try {
+        const confirm = await this.$dialog.confirm({
+          title: '解散群聊',
+          message: '是否要解散群聊？',
+        });
+        if (confirm != 'confirm') return;
+        const res = await removeGroup(this.gid);
+        console.log(res);
+        if (res.status !== 200) return this.$toast.fail(res.message);
+        this.$toast.success('解散成功');
+        this.$router.replace('/home');
+      } catch (error) {
+        if (error == 'cancel') return;
+        console.log(error);
+        this.$toast.fail('解散失败');
+      }
+    },
+  },
+  computed: {
+    //选中分享好友数量
+    selectCount() {
+      let count = 0;
+      this.inviteFriendList.forEach(f => {
+        if (f.select) count++;
+      });
+      return count;
     },
   },
 };

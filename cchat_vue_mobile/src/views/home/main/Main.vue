@@ -3,10 +3,7 @@
     <router-view></router-view>
     <van-tabbar route active-color="#ff6900" inactive-color="#000" class="tarbar">
       <van-tabbar-item icon="chat-o" :badge="msgCount" to="/home/main/index">首页</van-tabbar-item>
-      <van-tabbar-item
-        icon="friends-o"
-        :badge="friendApplyList.length > 0 ? friendApplyList.length : ''"
-        to="/home/main/friendslist"
+      <van-tabbar-item icon="friends-o" :badge="getApplyListCount > 0 ? getApplyListCount : ''" to="/home/main/friendslist"
         >联系人</van-tabbar-item
       >
       <van-tabbar-item icon="fire-o" to="/home/main/other">动态</van-tabbar-item>
@@ -15,8 +12,8 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
-import { getApplyList } from '@/network/friend';
+import { mapGetters } from 'vuex';
+
 export default {
   props: {},
   data() {
@@ -25,18 +22,11 @@ export default {
     };
   },
   async mounted() {
-    //请求申请列表到vuex
-    try {
-      const res = await getApplyList();
-      if (res.status !== 200) throw new Error();
-      this.$store.commit('useFriendApplyList', res.data);
-    } catch (error) {
-      console.log(error);
-      this.$toast.fail('请求好友申请列表失败');
-    }
+    this.$store.dispatch('requestFriendApplyList');
+    this.$store.dispatch('requestGroupApplyList');
   },
   computed: {
-    ...mapState(['friendApplyList']),
+    ...mapGetters(['getApplyListCount']),
   },
   methods: {},
 };

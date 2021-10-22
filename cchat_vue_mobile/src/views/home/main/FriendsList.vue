@@ -1,14 +1,28 @@
 <template>
   <div class="friend-container">
     <!-- navbar -->
-    <van-nav-bar fixed title="好友列表" />
+    <van-nav-bar fixed title="好友列表">
+      <template #right>
+        <van-popover
+          v-model="isShowPopover"
+          trigger="click"
+          placement="left"
+          :actions="[{ text: '创建群聊' }]"
+          @select="onPopoverSelect"
+        >
+          <template #reference>
+            <van-icon name="add-o" color="#ff6900" size="26" />
+          </template>
+        </van-popover>
+      </template>
+    </van-nav-bar>
     <!-- 添加好友单元格 -->
     <van-cell title="添加好友/群" center is-link title-style="padding-left:20px" @click="showAddFriend">
       <template #icon>
         <van-image width="30" height="30" :src="require('@/assets/img/add-friend.png')" />
       </template>
       <template #right-icon>
-        <van-badge :content="friendApplyList.length > 0 ? friendApplyList.length : ''" max="99" />
+        <van-badge :content="getApplyListCount > 0 ? getApplyListCount : ''" max="99" />
         <van-icon name="arrow" />
       </template>
     </van-cell>
@@ -47,12 +61,31 @@
           </div>
         </van-tab>
         <!-- 群聊 -->
-        <van-tab title="群聊申请(0)">
+        <van-tab :title="'群聊申请(' + groupApplyList.length + ')'">
           <van-search v-model.trim="inputGid" placeholder="输入要添加的群聊GID" show-action>
             <template #action>
               <van-button @click="onSearchGid" size="small">搜索</van-button>
             </template>
           </van-search>
+          <!-- 申请列表 -->
+          <van-divider>群申请列表</van-divider>
+          <div class="apply-list">
+            <van-cell
+              :title="item.inviteedName"
+              v-for="item in groupApplyList"
+              :key="item.applyId"
+              :label="'申请加入:' + item.gname"
+              title-class="padding-left-2 show-one-row"
+            >
+              <template #icon>
+                <van-image width="40" height="40" :src="item.inviteeAvatarUrl" @click="goInfo('user', item.inviteeCid)" />
+              </template>
+              <template #right-icon>
+                <van-button type="primary" @click="handleGroupApply(item.gid, item.inviteeCid, 'agree')">同意</van-button>
+                <van-button type="danger" @click="handleGroupApply(item.gid, item.inviteeCid, 'reject')">拒绝</van-button>
+              </template>
+            </van-cell>
+          </div>
         </van-tab>
       </van-tabs>
     </van-popup>
@@ -76,6 +109,15 @@
           <van-icon name="arrow" />
         </template>
       </van-cell>
+    </van-popup>
+    <!-- 创建群聊界面 -->
+    <van-popup v-model="isShowCreateGroup" position="bottom" :style="{ height: '50vh', 'padding-top': '2vh' }">
+      <van-divider>创建一个群聊</van-divider>
+      <van-search v-model.trim="inputCreateGname" placeholder="输入新群聊群名" show-action>
+        <template #action>
+          <van-button @click="createGroup" size="small">创建</van-button>
+        </template>
+      </van-search>
     </van-popup>
     <!-- 好友列表 -->
     <div class="listBox" v-if="Object.keys(friendList).length > 0">
@@ -102,10 +144,11 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapState, mapGetters } from 'vuex';
 import { getFriendList } from '@/network/friend';
-import { getGroupList, searchGroup } from '@/network/group';
+import { getGroupList, searchGroup, agreeGroupApply, rejectGroupApply, createGroup } from '@/network/group';
 import { searchUser } from '@/network/user';
+import Val from '@/utils/validator';
 export default {
   props: {},
   data() {
@@ -115,8 +158,11 @@ export default {
       groupList: [], //群聊列表
       isShowAddFriend: false, //是否展示添加面板
       isShowGroupList: false, //是否展示群聊列表面板
+      isShowPopover: false, //右上角选项
+      isShowCreateGroup: false, //是否显示创建群聊
       inputCid: '', //输入的cid
       inputGid: '', //输入的gid
+      inputCreateGname: '', //输入的创建群名称
     };
   },
   async mounted() {
@@ -172,9 +218,50 @@ export default {
         this.$toast.fail('请求群聊列表失败');
       }
     },
+    //处理入群申请
+    async handleGroupApply(gid, inviteeCid, type) {
+      const types = { agree: agreeGroupApply, reject: rejectGroupApply };
+      try {
+        const res = await types[type](gid, inviteeCid);
+        if (res.status !== 200) return this.$toast.fail(res.message);
+        this.$toast.success('操作成功');
+        //重新请求数据
+        this.$store.dispatch('requestGroupApplyList');
+      } catch (error) {
+        console.log(error);
+        return this.$toast.fail('发生错误');
+      }
+    },
+    //创建群聊
+    async createGroup() {
+      if (
+        !new Val(this.inputCreateGname)
+          .notnull()
+          .maxlen(20)
+          .end()
+      )
+        return this.$toast.fail('群名不符合规范');
+      try {
+        const res = await createGroup(this.inputCreateGname);
+        if (res.status !== 200) return this.$toast.fail(res.message);
+        this.$toast.success('创建成功');
+        this.goInfo('group', res.gid);
+      } catch (error) {
+        console.log(error);
+        this.$toast.fail('错误');
+      }
+    },
+    //选择选项
+    onPopoverSelect({ text }) {
+      if (text == '创建群聊') {
+        this.inputCreateGname = '';
+        this.isShowCreateGroup = true;
+      }
+    },
   },
   computed: {
-    ...mapState(['friendApplyList']),
+    ...mapState(['friendApplyList', 'groupApplyList']),
+    ...mapGetters(['getApplyListCount']),
   },
 };
 </script>

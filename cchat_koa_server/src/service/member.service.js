@@ -1,4 +1,5 @@
 const connection = require('../app/database');
+const memberTypes = require('../constant/member.constant');
 // 群用户 相关数据库操作
 class MemberService {
   //得到群成员数量
@@ -44,6 +45,21 @@ class MemberService {
   async updateRemind(gid, cid, flag) {
     const statement = `UPDATE group_user SET remind = ? WHERE gid = ? AND cid=?;`;
     const [result] = await connection.execute(statement, [flag, gid, cid]);
+    return result;
+  }
+
+  //移除群用户
+  async removeUserByCid(gid, cid) {
+    const statement = `DELETE FROM group_user WHERE gid = ? AND cid=?;`;
+    const [result] = await connection.execute(statement, [gid, cid]);
+    return result;
+  }
+
+  //创建群成员
+  async addMember(gid, cid, nickname, role = memberTypes.USER_ROLE_NORMAL) {
+    const statement = `INSERT INTO group_user (gid,cid,nickname,role) VALUES (?,?,?,?);`;
+    //数据库操作，添加
+    const [result] = await connection.execute(statement, [gid, cid, nickname, role]);
     return result;
   }
 }

@@ -26,6 +26,8 @@ import {
   Divider,
   Switch,
   Tag,
+  Checkbox,
+  Popover,
 } from 'vant';
 
 const list = [
@@ -55,6 +57,8 @@ const list = [
   Divider,
   Switch,
   Tag,
+  Checkbox,
+  Popover,
 ];
 
 list.forEach(item => {
