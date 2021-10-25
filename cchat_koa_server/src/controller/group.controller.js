@@ -20,7 +20,8 @@ function handleUserInfo(info) {
 class GroupController {
   //搜索群
   async search(ctx, next) {
-    ctx.body = { status: 200, message: '成功' };
+    const groupInfo = ctx.groupInfo;
+    ctx.body = { status: 200, groupInfo, message: '成功' };
   }
 
   //查看群信息

@@ -23,6 +23,21 @@ class FriendMiddleware {
       ctx.app.emlt('error', { message: '请求好友申请信息失败' }, ctx);
     }
   }
+
+  //判断是否是好友
+  async checkFriend(ctx, next) {
+    const userCid = ctx.tokenInfo.cid;
+    const friendCid = ctx.request.params.cid;
+    try {
+      const [friendInfo] = await friendService.getFriendByCid(userCid, friendCid);
+      if (!friendInfo) return ctx.app.emit('error', { message: '该用户不是你的好友' }, ctx);
+      ctx.friendInfo = friendInfo;
+      await next();
+    } catch (error) {
+      console.log(error);
+      ctx.app.emit('error', { message: '查询好友信息失败' }, ctx);
+    }
+  }
 }
 
 module.exports = new FriendMiddleware();

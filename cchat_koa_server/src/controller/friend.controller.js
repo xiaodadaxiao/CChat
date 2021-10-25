@@ -168,6 +168,16 @@ class FriendCotroller {
       ctx.app.emit('error', { message: '更改请求失败' }, ctx);
     }
   }
+
+  //查询单个好友信息
+  async getFriendInfo(ctx, next) {
+    try {
+      const friendInfo = ctx.friendInfo;
+      ctx.body = { status: 200, friendInfo, message: '请求成功' };
+    } catch (error) {
+      console.log(error);
+    }
+  }
 }
 
 module.exports = new FriendCotroller();

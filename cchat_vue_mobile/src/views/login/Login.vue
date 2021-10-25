@@ -20,9 +20,7 @@
           name="password"
           clearable
           @keyup.enter.native="loginClick"
-          :rules="[
-            { pattern: passwordExp, message: '密码至少包含6位数字和英文' },
-          ]"
+          :rules="[{ pattern: passwordExp, message: '密码至少包含6位数字和英文' }]"
         />
 
         <div>
@@ -47,13 +45,13 @@
 </template>
 
 <script>
-import { login } from "@/network/login";
+import { login } from '@/network/login';
 export default {
   props: {},
   data() {
     return {
-      cid: "",
-      password: "",
+      cid: '',
+      password: '',
       passwordExp: /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/,
       disBtn: false, //按钮是否可点击
       btnIsLoading: false,
@@ -74,18 +72,18 @@ export default {
         this.btnIsLoading = false;
         this.disBtn = false;
         if (res.status === 200) {
-          this.$toast.success("登录成功");
-          localStorage.setItem("token", res.token);
-          this.$store.commit("useIsLogin", true);
+          this.$toast.success('登录成功');
+          localStorage.setItem('token', res.token);
+          console.log(res);
+          this.$store.commit('useIsLogin', { flag: true, cid: res.cid });
           //跳转首页
-          this.$router.replace("/home");
+          this.$router.replace('/home');
         } else {
           this.$toast.fail(res.message);
         }
-        console.log(res);
       } catch (err) {
         console.log(err);
-        this.$toast.fail("错误");
+        this.$toast.fail('错误');
       }
     },
   },

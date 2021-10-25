@@ -1,0 +1,3 @@
+exports.ONLINE = 'ONLINE';
+exports.NOT_TOKEN = 'NOTTOKEN';
+exports.TOKEN_INVALID = 'TOKEN_INVALID';

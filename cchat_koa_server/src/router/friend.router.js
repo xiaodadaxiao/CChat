@@ -39,4 +39,13 @@ friendRouter.post(
   friendMiddleware.checkApplyParamsToToken, //检查申请信息
   friendController.reject
 );
+
+//获取好友信息
+friendRouter.get(
+  '/:cid',
+  authMiddleware.checkToken, //检查token
+  friendMiddleware.checkFriend, //检查是否是好友
+  friendController.getFriendInfo
+);
+
 module.exports = friendRouter;

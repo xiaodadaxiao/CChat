@@ -3,7 +3,7 @@
     <!-- 顶部导航栏 -->
     <van-nav-bar title="CChat" fixed left-arrow @click-left="leftCick" @click-right="rightClick">
       <template #left>
-        <van-image width="40" height="40" src="https://img01.yzcdn.cn/vant/cat.jpeg" />
+        <van-image width="37" height="37" src="https://img01.yzcdn.cn/vant/cat.jpeg" />
       </template>
       <!-- 头部右侧 -->
       <template #right>
@@ -14,34 +14,60 @@
     <van-pull-refresh v-model="isLoading" @refresh="onRefresh" class="freshbox">
       <div class="chatlist">
         <!-- 好友 -->
-        <van-swipe-cell v-for="(ittem, index) in 10">
-          <div class="chatitem">
-            <!-- 好友头像 -->
-            <van-image round src="https://img01.yzcdn.cn/vant/cat.jpeg" class="img" />
-            <!-- 好友名称和聊天内容 -->
-            <div class="message">
-              <div class="name">刘德华</div>
-              <div class="value show-one-row">
-                我是刘德华，很高兴见到你，因为实打实的阿三大苏打
+        <div v-for="item in indexMessage" :key="item.type == 'group' ? item.data.gid : item.data.friend_cid">
+          <!-- 好友 -->
+          <van-swipe-cell v-if="item.type === 'friend'">
+            <div class="chatitem" @click="goChat(item.type, item.data.friend_cid)">
+              <!-- 好友头像 -->
+              <van-image round :src="item.data.avatar_url" class="img" />
+              <!-- 好友名称和聊天内容 -->
+              <div class="message">
+                <div class="name show-one-row">{{ item.data.nickname }}</div>
+                <div class="value show-one-row">
+                  {{ item.data.content }}
+                </div>
+              </div>
+              <!-- 最后聊天时间 -->
+              <div class="right">
+                <div class="time">{{ item.data.updateAt | dateFormat }}</div>
+                <van-badge color="#ff6900" :content="item.data.count > 0 ? item.data.count : ''" class="count" :max="10" />
               </div>
             </div>
-            <!-- 最后聊天时间 -->
-            <div class="right">
-              <div class="time">11:45</div>
-              <van-badge color="#ff6900" :content="20" class="count" :max="10" />
+            <!-- 右滑操作 -->
+            <template #right>
+              <van-button square text="删除" type="danger" class="delete-button" />
+            </template>
+          </van-swipe-cell>
+          <van-swipe-cell v-else-if="item.type === 'group'">
+            <div class="chatitem" @click="goChat(item.type, item.data.gid)">
+              <!-- 群头像 -->
+              <van-image round :src="item.data.avatar_url" class="img" />
+              <!-- 群名称和聊天内容 -->
+              <div class="message">
+                <div class="name show-one-row">{{ item.data.gname }}</div>
+                <div class="value show-one-row">
+                  {{ `${item.data.talker_name}:${item.data.content}` }}
+                </div>
+              </div>
+              <!-- 群最后聊天时间 -->
+              <div class="right">
+                <div class="time">{{ item.data.updateAt | dateFormat }}</div>
+                <van-badge color="#ff6900" :content="item.data.count > 0 ? item.data.count : ''" class="count" :max="10" />
+              </div>
             </div>
-          </div>
-          <!-- 右滑操作 -->
-          <template #right>
-            <van-button square text="删除" type="danger" class="delete-button" />
-          </template>
-        </van-swipe-cell>
+            <!-- 右滑操作 -->
+            <template #right>
+              <van-button square text="删除" type="danger" class="delete-button" />
+            </template>
+          </van-swipe-cell>
+        </div>
       </div>
     </van-pull-refresh>
   </div>
 </template>
 
 <script>
+import { mapState } from 'vuex';
 export default {
   props: {},
   data() {
@@ -57,12 +83,23 @@ export default {
         this.isLoading = false;
       }, 500);
     },
+    goChat(type, id) {
+      this.$router.push(`/home/chat/${type}/${id}`);
+    },
     leftCick() {
       console.log('左侧点击');
     },
     rightClick() {
       console.log('右侧点击');
     },
+  },
+  sockets: {
+    test(info) {
+      console.log('index', info);
+    },
+  },
+  computed: {
+    ...mapState(['indexMessage']),
   },
 };
 </script>
@@ -97,17 +134,19 @@ export default {
     width: 12vw;
     height: 12vw;
     border-radius: 1.5vw;
+    margin-top: 1vw;
   }
   .message {
     height: 8vh;
     flex: 1;
-    padding: 0 1vw;
+    padding-left: 3vw;
     display: flex;
     flex-direction: column;
     .name {
       font-size: 4.5vw;
       height: 4.5vh;
       line-height: 4.5vh;
+      font-weight: 500;
     }
     .value {
       height: 3vh;
@@ -120,16 +159,21 @@ export default {
     display: flex;
     flex-direction: column;
     justify-content: space-around;
+    align-items: center;
     .time {
       height: 3vh;
       line-height: 3vh;
-
-      width: 10vw;
+      width: 18vw;
       color: #999;
+      font-size: 3.5vw;
+      text-align: center;
     }
     .count {
-      // border-color: @app-bgc;
-      padding: 0.1vh;
+      width: 7vw;
+      height: 7vw;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 7vw;
     }
 
     font-size: 4vw;

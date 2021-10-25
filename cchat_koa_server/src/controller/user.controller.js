@@ -7,6 +7,7 @@ class UserController {
   async search(ctx, next) {
     ctx.body = {
       status: 200,
+      userInfo,
       cid: ctx.userInfo.cid,
     };
   }

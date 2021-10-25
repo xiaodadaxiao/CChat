@@ -28,6 +28,7 @@ import {
   Tag,
   Checkbox,
   Popover,
+  List,
 } from 'vant';
 
 const list = [
@@ -59,6 +60,7 @@ const list = [
   Tag,
   Checkbox,
   Popover,
+  List,
 ];
 
 list.forEach(item => {

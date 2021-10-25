@@ -9,6 +9,14 @@ export function getFriendList() {
   });
 }
 
+//获取好友信息
+export function getFriendInfo(friendCid) {
+  return request({
+    url: '/friend/' + friendCid,
+    method: 'get',
+  });
+}
+
 //请求申请列表
 export function getFriendApplyList() {
   return request({

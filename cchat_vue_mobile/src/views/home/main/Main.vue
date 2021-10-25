@@ -2,7 +2,7 @@
   <div class="main-container">
     <router-view></router-view>
     <van-tabbar route active-color="#ff6900" inactive-color="#000" class="tarbar">
-      <van-tabbar-item icon="chat-o" :badge="msgCount" to="/home/main/index">首页</van-tabbar-item>
+      <van-tabbar-item icon="chat-o" :badge="getIndexCount > 0 ? getIndexCount : ''" to="/home/main/index">首页</van-tabbar-item>
       <van-tabbar-item icon="friends-o" :badge="getApplyListCount > 0 ? getApplyListCount : ''" to="/home/main/friendslist"
         >联系人</van-tabbar-item
       >
@@ -17,16 +17,15 @@ import { mapGetters } from 'vuex';
 export default {
   props: {},
   data() {
-    return {
-      msgCount: 1,
-    };
+    return {};
   },
   async mounted() {
     this.$store.dispatch('requestFriendApplyList');
     this.$store.dispatch('requestGroupApplyList');
+    this.$store.dispatch('requestIndexMessage');
   },
   computed: {
-    ...mapGetters(['getApplyListCount']),
+    ...mapGetters(['getApplyListCount', 'getIndexCount']),
   },
   methods: {},
 };
