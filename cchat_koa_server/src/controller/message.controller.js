@@ -6,8 +6,6 @@ class MessageController {
     try {
       const friendMessages = await messageService.getFriendMessage(cid);
       const groupMessage = await messageService.getGroupMessage(cid);
-      // console.log(friendMessages);
-      // console.log(groupMessage);
       /* 处理数据 */
       const data = [];
       if (friendMessages.length > 0) {

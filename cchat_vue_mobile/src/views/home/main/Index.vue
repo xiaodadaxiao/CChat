@@ -7,13 +7,13 @@
       </template>
       <!-- 头部右侧 -->
       <template #right>
-        <van-icon name="plus" size="18" />
+        <van-icon name="bar-chart-o" />
       </template>
     </van-nav-bar>
     <!-- 聊天列表 可刷新 -->
     <van-pull-refresh v-model="isLoading" @refresh="onRefresh" class="freshbox">
       <div class="chatlist">
-        <!-- 好友 -->
+        <!-- 单个聊天 -->
         <div v-for="item in indexMessage" :key="item.type == 'group' ? item.data.gid : item.data.friend_cid">
           <!-- 好友 -->
           <van-swipe-cell v-if="item.type === 'friend'">
@@ -24,7 +24,7 @@
               <div class="message">
                 <div class="name show-one-row">{{ item.data.nickname }}</div>
                 <div class="value show-one-row">
-                  {{ item.data.content }}
+                  {{ getShowValue(item.data.content, item.data.type) }}
                 </div>
               </div>
               <!-- 最后聊天时间 -->
@@ -38,6 +38,7 @@
               <van-button square text="删除" type="danger" class="delete-button" />
             </template>
           </van-swipe-cell>
+          <!-- 群 -->
           <van-swipe-cell v-else-if="item.type === 'group'">
             <div class="chatitem" @click="goChat(item.type, item.data.gid)">
               <!-- 群头像 -->
@@ -46,7 +47,7 @@
               <div class="message">
                 <div class="name show-one-row">{{ item.data.gname }}</div>
                 <div class="value show-one-row">
-                  {{ `${item.data.talker_name}:${item.data.content}` }}
+                  {{ `${item.data.talker_name}:${getShowValue(item.data.content, item.data.type)}` }}
                 </div>
               </div>
               <!-- 群最后聊天时间 -->
@@ -68,10 +69,12 @@
 
 <script>
 import { mapState } from 'vuex';
+import * as messageType from '@/constant/message';
 export default {
   props: {},
   data() {
     return {
+      messageType,
       count: 10,
       isLoading: false,
     };
@@ -91,6 +94,17 @@ export default {
     },
     rightClick() {
       console.log('右侧点击');
+    },
+    //得到要展示的内容
+    getShowValue(content, type) {
+      switch (type) {
+        case this.messageType.TEXT:
+          return content;
+        case this.messageType.IMAGE:
+          return '[图片]';
+        default:
+          return content;
+      }
     },
   },
   sockets: {

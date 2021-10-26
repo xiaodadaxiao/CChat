@@ -10,7 +10,16 @@
       @click-right="onClickRight"
     />
     <div class="main" :style="{ 'padding-bottom': bottomHeight + 'px' }">
-      <van-list v-model="loading" :finished="finished" direction="up" finished-text="没有更多了" @load="onLoad" class="chat-list">
+      <van-list
+        v-model="loading"
+        :finished="finished"
+        direction="up"
+        finished-text="没有更多了"
+        @load="onLoad"
+        :immediate-check="false"
+        offset="5"
+        class="chat-list"
+      >
         <div v-for="item in chatType == 'friend' ? friendMessage : groupMessage" :key="item.id">
           <!-- 左侧发言 -->
           <div class="chat-item chat-item-l" v-if="userCid !== item.talker_cid">
@@ -23,10 +32,18 @@
               <!-- 名字和内容 -->
               <div class="info">
                 <div class="name show-one-row" v-if="chatType == 'group'">{{ item.nickname }}</div>
-                <div class="message">
-                  <div class="value">
+                <div class="value">
+                  <!-- 文本 -->
+                  <div class="message" v-if="item.type == messageType.TEXT">
                     {{ item.content }}
                   </div>
+                  <!-- 图片 -->
+                  <van-image
+                    fit="contain"
+                    @click="clickImg(item.content)"
+                    v-if="item.type == messageType.IMAGE"
+                    :src="item.content"
+                  />
                 </div>
               </div>
             </div>
@@ -42,10 +59,18 @@
               <!-- 名字和内容 -->
               <div class="info">
                 <!-- <div class="name show-one-row"></div> -->
-                <div class="message">
-                  <div class="value">
+                <div class="value">
+                  <!-- 文本 -->
+                  <div class="message" v-if="item.type == messageType.TEXT">
                     {{ item.content }}
                   </div>
+                  <!-- 图片 -->
+                  <van-image
+                    fit="contain"
+                    @click="clickImg(item.content)"
+                    v-if="item.type == messageType.IMAGE"
+                    :src="item.content"
+                  />
                 </div>
               </div>
             </div>
@@ -54,15 +79,18 @@
       </van-list>
     </div>
     <!-- 操作栏 -->
-    <submit class="submit" />
+    <submit class="submit" @heightChange="submitHeightChange" @send="send" />
   </div>
 </template>
 
 <script>
 import { mapState } from 'vuex';
+//展示图片函数
+import { ImagePreview } from 'vant';
 import { searchGroup } from '@/network/group';
 import { getFriendInfo } from '@/network/friend';
 import { getFriendMessage, getGroupMessage } from '@/network/message';
+import * as messageType from '@/constant/message';
 import Submit from '@/components/submit/Submit';
 export default {
   props: {},
@@ -70,14 +98,16 @@ export default {
     return {
       chatType: '',
       chatId: '',
+      messageType,
       loading: false,
-      finished: true, //是否全部加载完成
+      finished: false, //是否全部加载完成
       friendInfo: {},
       groupInfo: {},
       friendMessage: [],
       groupMessage: [],
       page: 1,
-      bottomHeight: 100, //底部高度
+      scrollDiv: '',
+      bottomHeight: 56, //底部高度
     };
   },
   components: { Submit },
@@ -119,6 +149,12 @@ export default {
         //排序
         this.groupMessage.sort((a, b) => new Date(a.updateAt) - new Date(b.updateAt));
       }
+      //得到滑动区域
+      this.scrollDiv = document.querySelector('.chat-list');
+      //滑动到底部
+      this.$nextTick(() => {
+        this.scrollDiv.scrollTop = this.scrollDiv.scrollHeight;
+      });
     } catch (error) {
       console.log(error);
       this.$toast.fail('请求聊天数据错误');
@@ -126,16 +162,35 @@ export default {
   },
   methods: {
     onClickLeft() {
-      this.$router.replace('/home/main');
+      // this.$router.replace('/home/main');
+      this.$router.go(-1);
     },
     onClickRight() {
       console.log('right');
     },
+    //上拉加载
     onLoad() {
       console.log('加载。。。');
       setTimeout(() => {
         this.loading = false;
+        this.finished = true;
       }, 1000);
+    },
+    //输入栏高度变化
+    submitHeightChange(h) {
+      this.bottomHeight = h;
+      //滑动到底部
+      this.$nextTick(() => {
+        this.scrollDiv.scrollTop = this.scrollDiv.scrollHeight;
+      });
+    },
+    //输入栏传输数据
+    send(type, value) {
+      console.log(type, value);
+    },
+    //点击预览图片
+    clickImg(url) {
+      ImagePreview([url]);
     },
   },
   computed: {
@@ -178,9 +233,11 @@ export default {
             max-width: 70vw;
           }
           //内容
-          .message {
+          .value {
             max-width: 64vw;
-            .value {
+            //文本
+            .message {
+              word-break: break-all;
               color: @text-c;
               font-size: 4.2vw;
               line-height: 6.5vw;
@@ -199,10 +256,11 @@ export default {
             padding-left: 3.1vw;
             margin-bottom: 1vw;
           }
-          .message {
+          .value {
             background-color: #fff;
             border-radius: 0 7px 7px 7px;
             margin-left: 2vw;
+            overflow: hidden;
           }
         }
       }
@@ -212,12 +270,14 @@ export default {
       .msg-main {
         flex-direction: row-reverse;
         .info {
-          .message {
-            background-color: @app-color;
+          .value {
             border-radius: 7px 0 7px 7px;
             margin-right: 2vw;
-            .value {
+            overflow: hidden;
+            // 右侧文本颜色
+            .message {
               color: #fff;
+              background-color: @app-color;
             }
           }
         }

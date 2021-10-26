@@ -4,7 +4,7 @@ class MessageService {
   //得到首页好友信息
   async getFriendMessage(cid) {
     const statement = `
-    SELECT f.fcid friend_cid,f.nickname,avatar_url, content, TYPE ,updateAt,last_time
+    SELECT f.fcid friend_cid,f.nickname,avatar_url, content, type ,updateAt,last_time
     FROM 
         (SELECT user_cid ucid ,friend_cid fcid,nickname,avatar_url,last_time  FROM friend f
           LEFT JOIN USER u ON f.friend_cid = u.cid  WHERE user_cid=?) f 
@@ -21,7 +21,7 @@ class MessageService {
   async getGroupMessage(cid) {
     const statement = `
     SELECT 
-      g.gid gid,gr.gname gname, remind,content,gm.type TYPE,gm.updateAt updateAt,
+      g.gid gid,gr.gname gname, remind,content,gm.type type,gm.updateAt updateAt,
        u.name talker_name,gr.avatar_url avatar_url,g.last_time
     FROM (SELECT gu.cid ucid, gid,remind,gu.last_time FROM group_user gu WHERE gu.cid =?) g
     LEFT JOIN group_message gm ON g.gid =gm.listener_gid
@@ -80,7 +80,7 @@ class MessageService {
   //得到群聊天信息
   async getGroupMessageByGid(gid, offset = '0', size = '10') {
     const statement = `
-    SELECT gm.id id,talker_cid,content,avatar_url,gm.updateAt updateAt,gm.type TYPE,gu.nickname nickname,role
+    SELECT gm.id id,talker_cid,content,avatar_url,gm.updateAt updateAt,gm.type type,gu.nickname nickname,role
     FROM group_message gm 
     LEFT JOIN USER u ON gm.talker_cid=u.cid
     LEFT JOIN group_user gu ON gu.cid=gm.talker_cid AND gu.gid =gm.listener_gid

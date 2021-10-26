@@ -29,6 +29,7 @@ import {
   Checkbox,
   Popover,
   List,
+  ActionSheet,
 } from 'vant';
 
 const list = [
@@ -61,6 +62,7 @@ const list = [
   Checkbox,
   Popover,
   List,
+  ActionSheet,
 ];
 
 list.forEach(item => {

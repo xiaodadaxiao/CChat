@@ -97,7 +97,7 @@
         center
         is-link
         title-style="padding-left:20px"
-        @click="goInfo('group', group.gid)"
+        @click="goChat('group', group.gid)"
         v-for="group in groupList"
         :key="group.gid"
       >
@@ -131,6 +131,7 @@
             :title="item.nickname"
             size="large"
             title-style="padding-left:20px"
+            @click="goChat('friend', item.friendCid)"
           >
             <template #icon>
               <van-image width="40" height="40" :src="item.avatarUrl" />
@@ -205,6 +206,10 @@ export default {
     goInfo(type, id) {
       if (type == 'user') this.$router.push('/home/user/' + id);
       if (type == 'group') this.$router.push('/home/group/' + id);
+    },
+    //去聊天界面
+    goChat(type, id) {
+      this.$router.push(`/home/chat/${type}/${id}`);
     },
     //点击显示群聊列表
     async showGroup() {
