@@ -12,5 +12,6 @@ export default {};
 .home {
   width: 100vw;
   height: 100vh;
+  font-family: PingFangSC-Semibold, sans-serif;
 }
 </style>

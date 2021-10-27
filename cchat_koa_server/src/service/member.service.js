@@ -16,9 +16,12 @@ class MemberService {
     return result[0];
   }
   //查询成员用户信息列表
-  async getMembersUserInfoByGid(gid, offset = '0', number = '5') {
-    const statement = `SELECT *  FROM group_user gu LEFT JOIN  USER u ON gu.cid=u.cid WHERE gu.gid=? LIMIT ?,?;`;
-    const result = await connection.execute(statement, [gid, offset, number]);
+  async getMembersUserInfoByGid(gid, offset = '0', number = '5') {}
+
+  //查询用户所有群
+  async getUserGroupsByCid(cid) {
+    const statement = `SELECT *  FROM group_user  WHERE cid=?;`;
+    const result = await connection.execute(statement, [cid]);
     return result[0];
   }
 
@@ -45,6 +48,13 @@ class MemberService {
   async updateRemind(gid, cid, flag) {
     const statement = `UPDATE group_user SET remind = ? WHERE gid = ? AND cid=?;`;
     const [result] = await connection.execute(statement, [flag, gid, cid]);
+    return result;
+  }
+
+  //修改用户信息(KeyValue)
+  async updateMemberByKeyValue(cid, gid, key, value) {
+    const statement = `UPDATE  group_user SET ${key}=? WHERE cid=? AND gid=? ;`;
+    const [result] = await connection.execute(statement, [value, cid, gid]);
     return result;
   }
 

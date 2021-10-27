@@ -1,4 +1,3 @@
-import Vue from 'vue';
 import VueSocketIO from 'vue-socket.io';
 import SocketIO from 'socket.io-client';
 import store from '@/store';
@@ -11,14 +10,26 @@ const socketOptions = {
   },
 };
 
-Vue.use(
-  new VueSocketIO({
-    debug: true,
-    connection: SocketIO(baseURL, socketOptions),
-    vuex: {
-      store,
-      actionPrefix: 'scoket_',
-      mutationPrefix: 'scoket_',
-    },
-  })
-);
+const vueSocketIO = new VueSocketIO({
+  debug: false,
+  connection: SocketIO(baseURL, socketOptions),
+  vuex: {
+    store,
+    actionPrefix: 'scoket_',
+    mutationPrefix: 'scoket_',
+  },
+});
+//提交函数
+function socketEmit(emitName, data) {
+  return new Promise((resolve, reject) => {
+    //提交名，数据，回调函数（回调数据，错误）
+    vueSocketIO.io.emit(emitName, data, (res, error) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(res);
+      }
+    });
+  });
+}
+export { vueSocketIO, socketEmit };

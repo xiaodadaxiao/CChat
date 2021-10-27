@@ -56,6 +56,7 @@ export default {
     //发送
     send() {
       this.$emit('send', messageType.TEXT, this.inputValue);
+      this.inputValue = '';
     },
   },
   watch: {

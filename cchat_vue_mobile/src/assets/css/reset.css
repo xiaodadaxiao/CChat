@@ -1,6 +1,6 @@
 /* 初始化样式 */
 
-@import url("~normalize.css");
+@import url('~normalize.css');
 body,
 html {
   margin: 0;

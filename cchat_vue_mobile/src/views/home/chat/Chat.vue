@@ -39,10 +39,11 @@
                   </div>
                   <!-- 图片 -->
                   <van-image
-                    fit="contain"
+                    fit="scale-down"
                     @click="clickImg(item.content)"
                     v-if="item.type == messageType.IMAGE"
                     :src="item.content"
+                    class="img"
                   />
                 </div>
               </div>
@@ -66,10 +67,11 @@
                   </div>
                   <!-- 图片 -->
                   <van-image
-                    fit="contain"
+                    fit="scale-down"
                     @click="clickImg(item.content)"
                     v-if="item.type == messageType.IMAGE"
                     :src="item.content"
+                    class="img"
                   />
                 </div>
               </div>
@@ -116,6 +118,7 @@ export default {
     this.chatType = type;
     this.chatId = id;
     try {
+      /* 请求数据 */
       if (this.chatType == 'friend') {
         //请求好友数据
         const res = await getFriendInfo(this.chatId);
@@ -127,6 +130,8 @@ export default {
         if (res.status !== 200) return this.$toast.fail(res.messag);
         this.groupInfo = res.groupInfo;
       }
+      /* 更新最后聊天时间 */
+      this.$socketEmit('lastTime', { chatType: this.chatType, chatId: this.chatId });
     } catch (error) {
       console.log(error);
       this.$toast.fail('请求数据错误');
@@ -152,13 +157,15 @@ export default {
       //得到滑动区域
       this.scrollDiv = document.querySelector('.chat-list');
       //滑动到底部
-      this.$nextTick(() => {
-        this.scrollDiv.scrollTop = this.scrollDiv.scrollHeight;
-      });
+      this.scroll();
     } catch (error) {
       console.log(error);
       this.$toast.fail('请求聊天数据错误');
     }
+  },
+  detroyed() {
+    /* 更新最后聊天时间 */
+    this.$socketEmit('lastTime', { chatType: this.chatType, chatId: this.chatId });
   },
   methods: {
     onClickLeft() {
@@ -180,21 +187,47 @@ export default {
     submitHeightChange(h) {
       this.bottomHeight = h;
       //滑动到底部
-      this.$nextTick(() => {
-        this.scrollDiv.scrollTop = this.scrollDiv.scrollHeight;
-      });
+      this.scroll();
     },
-    //输入栏传输数据
-    send(type, value) {
-      console.log(type, value);
+    //输入栏发送信息
+    async send(type, value) {
+      try {
+        await this.$socketEmit('message', { content: value, chatId: this.chatId, chatType: this.chatType, type });
+        //添加本地数据
+      } catch (error) {
+        this.$dialog.alert({ message: error });
+      }
     },
     //点击预览图片
     clickImg(url) {
       ImagePreview([url]);
     },
+    //滚动到底部
+    scroll() {
+      this.$nextTick(() => {
+        this.scrollDiv.scrollTop = this.scrollDiv.scrollHeight;
+      });
+    },
   },
   computed: {
     ...mapState(['userCid']),
+  },
+  sockets: {
+    //接收好友信息
+    friendMessage(data) {
+      if (data.talker_cid == this.chatId || data.talker_cid == this.userCid) {
+        this.friendMessage.push(data);
+        //滑动到底部
+        this.scroll();
+      }
+    },
+    groupMessage(data) {
+      if (data.chatId == this.chatId) {
+        this.groupMessage.push(data);
+        //滑动到底部
+        this.scroll();
+      }
+    },
   },
 };
 </script>
@@ -221,9 +254,7 @@ export default {
       //main（公共）
       .msg-main {
         display: flex;
-        //头像
-        .avatar {
-        }
+        margin-bottom: 1vh;
         //内容
         .info {
           //名字
@@ -235,13 +266,21 @@ export default {
           //内容
           .value {
             max-width: 64vw;
+            overflow: hidden;
+            box-shadow: 0.5vw 0.5vw 3.5vw rgba(0, 0, 0, 0.4);
             //文本
             .message {
               word-break: break-all;
               color: @text-c;
-              font-size: 4.2vw;
+              font-size: 3.7vw;
+              font-weight: bold;
               line-height: 6.5vw;
+              font-family: PingFangSC-Regular, sans-serif;
               padding: 2vw;
+            }
+            //图片
+            .img {
+              display: block;
             }
           }
         }
@@ -251,6 +290,7 @@ export default {
     .chat-item-l {
       .msg-main {
         flex-direction: row;
+
         .info {
           .name {
             padding-left: 3.1vw;
@@ -260,7 +300,6 @@ export default {
             background-color: #fff;
             border-radius: 0 7px 7px 7px;
             margin-left: 2vw;
-            overflow: hidden;
           }
         }
       }
@@ -273,7 +312,6 @@ export default {
           .value {
             border-radius: 7px 0 7px 7px;
             margin-right: 2vw;
-            overflow: hidden;
             // 右侧文本颜色
             .message {
               color: #fff;

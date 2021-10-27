@@ -9,6 +9,13 @@ class FriendService {
     return result;
   }
 
+  //更新好友信息(KeyValue)
+  async updateFriendByKeyValue(userCid, friendCid, key, value) {
+    const statement = `UPDATE  friend SET ${key}=? WHERE user_cid=? AND friend_cid=? ;`;
+    const [result] = await connection.execute(statement, [value, userCid, friendCid]);
+    return result;
+  }
+
   //获得好友信息
   async getFriendByCid(userCid, friendCid) {
     const statement = `SELECT * FROM friend WHERE user_cid=? AND friend_cid =?;`;

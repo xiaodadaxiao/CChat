@@ -5,7 +5,7 @@ import router from './router';
 import store from './store';
 import checkScreen from '@/utils/screen';
 import { dateFormat } from '@/utils/filter';
-
+import { vueSocketIO, socketEmit } from '@/plugins/socket.js';
 Vue.config.productionTip = false;
 /* 初始样式 */
 import '@/assets/css/reset.css';
@@ -14,7 +14,9 @@ checkScreen();
 /* 注册vant */
 import '@/plugins/vant';
 /* 初始化socket.io */
-import '@/plugins/socket.js';
+Vue.use(vueSocketIO);
+Vue.prototype.$socketEmit = socketEmit;
+
 /* 过滤器 */
 Vue.filter('dateFormat', dateFormat);
 

@@ -47,7 +47,7 @@
               <div class="message">
                 <div class="name show-one-row">{{ item.data.gname }}</div>
                 <div class="value show-one-row">
-                  {{ `${item.data.talker_name}:${getShowValue(item.data.content, item.data.type)}` }}
+                  {{ `${item.data.nickname}:${getShowValue(item.data.content, item.data.type)}` }}
                 </div>
               </div>
               <!-- 群最后聊天时间 -->

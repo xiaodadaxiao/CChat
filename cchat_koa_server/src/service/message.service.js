@@ -21,12 +21,13 @@ class MessageService {
   async getGroupMessage(cid) {
     const statement = `
     SELECT 
-      g.gid gid,gr.gname gname, remind,content,gm.type type,gm.updateAt updateAt,
-       u.name talker_name,gr.avatar_url avatar_url,g.last_time
+      g.gid gid,gr.gname gname, g.remind remind,content,gm.type type,gm.updateAt updateAt,
+       gu.nickname nickname,gr.avatar_url avatar_url,g.last_time
     FROM (SELECT gu.cid ucid, gid,remind,gu.last_time FROM group_user gu WHERE gu.cid =?) g
     LEFT JOIN group_message gm ON g.gid =gm.listener_gid
     LEFT JOIN USER u ON u.cid =gm.talker_cid
     LEFT JOIN \`group\` gr ON gr.gid=g.gid
+    LEFT JOIN group_user gu ON gu.cid=gm.talker_cid AND gu.gid =g.gid
     WHERE gm.updateAt =(SELECT MAX(gm.updateAt) FROM group_message gm WHERE g.gid =gm.listener_gid )
     `;
     const [result] = await connection.execute(statement, [cid]);
@@ -95,6 +96,20 @@ class MessageService {
   async getGroupMessageCountByGid(gid) {
     const statement = `SELECT COUNT(*) count FROM group_message WHERE listener_gid=?`;
     const [result] = await connection.execute(statement, [gid]);
+    return result;
+  }
+  //保存好友聊天信息
+  async addFriendMessage(talkerCid, listenerCid, content, type) {
+    const statement = `INSERT INTO friend_message (talker_cid,listener_cid,content,type) VALUES (?,?,?,?);`;
+    //数据库操作，添加
+    const [result] = await connection.execute(statement, [talkerCid, listenerCid, content, type]);
+    return result;
+  }
+  //保存群聊天信息
+  async addGroupMessage(talkerCid, listenerGid, content, type) {
+    const statement = `INSERT INTO group_message (talker_cid,listener_gid,content,type) VALUES (?,?,?,?);`;
+    //数据库操作，添加
+    const [result] = await connection.execute(statement, [talkerCid, listenerGid, content, type]);
     return result;
   }
 }
