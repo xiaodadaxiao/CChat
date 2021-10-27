@@ -109,7 +109,7 @@ export default {
   },
   sockets: {
     test(info) {
-      console.log('index', info);
+      console.log('index test', info);
     },
   },
   computed: {

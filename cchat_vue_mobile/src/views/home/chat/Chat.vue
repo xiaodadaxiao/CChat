@@ -3,12 +3,15 @@
     <van-nav-bar
       :title="chatType == 'friend' ? friendInfo.nickname : groupInfo.gname"
       left-text="返回"
-      right-text="按钮"
       left-arrow
       fixed
       @click-left="onClickLeft"
-      @click-right="onClickRight"
-    />
+      @click-right="goInfo(chatType, chatId)"
+    >
+      <template #right>
+        <van-icon name="wap-nav" size="20" color="#ff6900" />
+      </template>
+    </van-nav-bar>
     <div class="main" :style="{ 'padding-bottom': bottomHeight + 'px' }">
       <van-list
         v-model="loading"
@@ -21,45 +24,19 @@
         class="chat-list"
       >
         <div v-for="item in chatType == 'friend' ? friendMessage : groupMessage" :key="item.id">
-          <!-- 左侧发言 -->
-          <div class="chat-item chat-item-l" v-if="userCid !== item.talker_cid">
-            <div class="time">{{ item.updateAt }}</div>
+          <!-- 发言 -->
+          <div :class="userCid !== item.talker_cid ? 'chat-item chat-item-l' : 'chat-item chat-item-r'">
+            <!-- 时间 -->
+            <div class="time">{{ item.updateAt | chatDateFormat }}</div>
             <div class="msg-main">
               <!-- 头像 -->
               <div class="avatar">
-                <van-image width="45" height="45" :src="item.avatar_url" />
+                <van-image width="45" class="avatar-img" height="45" :src="item.avatar_url" />
               </div>
               <!-- 名字和内容 -->
               <div class="info">
-                <div class="name show-one-row" v-if="chatType == 'group'">{{ item.nickname }}</div>
-                <div class="value">
-                  <!-- 文本 -->
-                  <div class="message" v-if="item.type == messageType.TEXT">
-                    {{ item.content }}
-                  </div>
-                  <!-- 图片 -->
-                  <van-image
-                    fit="scale-down"
-                    @click="clickImg(item.content)"
-                    v-if="item.type == messageType.IMAGE"
-                    :src="item.content"
-                    class="img"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- 右侧发言 -->
-          <div class="chat-item chat-item-r" v-else>
-            <div class="time">{{ item.updateAt }}</div>
-            <div class="msg-main ">
-              <!-- 头像 -->
-              <div class="avatar">
-                <van-image width="45" height="45" :src="item.avatar_url" />
-              </div>
-              <!-- 名字和内容 -->
-              <div class="info">
-                <!-- <div class="name show-one-row"></div> -->
+                <!-- 群用户且在左侧 才显示名字 -->
+                <div class="name show-one-row" v-if="chatType == 'group' && userCid !== item.talker_cid">{{ item.nickname }}</div>
                 <div class="value">
                   <!-- 文本 -->
                   <div class="message" v-if="item.type == messageType.TEXT">
@@ -92,6 +69,7 @@ import { ImagePreview } from 'vant';
 import { searchGroup } from '@/network/group';
 import { getFriendInfo } from '@/network/friend';
 import { getFriendMessage, getGroupMessage } from '@/network/message';
+import { handleChatDate, chatDateFormat } from '@/utils/filter';
 import * as messageType from '@/constant/message';
 import Submit from '@/components/submit/Submit';
 export default {
@@ -154,6 +132,8 @@ export default {
         //排序
         this.groupMessage.sort((a, b) => new Date(a.updateAt) - new Date(b.updateAt));
       }
+      //处理时间
+      this.handleTime();
       //得到滑动区域
       this.scrollDiv = document.querySelector('.chat-list');
       //滑动到底部
@@ -163,17 +143,23 @@ export default {
       this.$toast.fail('请求聊天数据错误');
     }
   },
-  detroyed() {
+  beforeDestroy() {
     /* 更新最后聊天时间 */
     this.$socketEmit('lastTime', { chatType: this.chatType, chatId: this.chatId });
+    /* 设置未读数为0 */
+    this.$store.commit('changeIndexMessageCount', [this.chatType, this.chatId, 0]);
+  },
+  filters: {
+    chatDateFormat,
   },
   methods: {
     onClickLeft() {
       // this.$router.replace('/home/main');
       this.$router.go(-1);
     },
-    onClickRight() {
-      console.log('right');
+    goInfo(type, id) {
+      if (type == 'friend') this.$router.push('/home/user/' + id);
+      if (type == 'group') this.$router.push('/home/group/' + id);
     },
     //上拉加载
     onLoad() {
@@ -208,6 +194,27 @@ export default {
         this.scrollDiv.scrollTop = this.scrollDiv.scrollHeight;
       });
     },
+    //处理时间
+    handleTime() {
+      //好友时间
+      for (let i = this.friendMessage.length - 1; i >= 0; i--) {
+        let m = this.friendMessage[i];
+        if (i == 0) {
+          m.updateAt = handleChatDate(m.updateAt, null);
+        } else {
+          m.updateAt = handleChatDate(m.updateAt, this.friendMessage[i - 1].updateAt);
+        }
+      }
+      //群时间
+      for (let i = this.groupMessage.length - 1; i >= 0; i--) {
+        let m = this.groupMessage[i];
+        if (i == 0) {
+          m.updateAt = handleChatDate(m.updateAt, null);
+        } else {
+          m.updateAt = handleChatDate(m.updateAt, this.groupMessage[i - 1].updateAt);
+        }
+      }
+    },
   },
   computed: {
     ...mapState(['userCid']),
@@ -219,6 +226,8 @@ export default {
         this.friendMessage.push(data);
         //滑动到底部
         this.scroll();
+        //处理时间
+        this.handleTime();
       }
     },
     groupMessage(data) {
@@ -226,6 +235,8 @@ export default {
         this.groupMessage.push(data);
         //滑动到底部
         this.scroll();
+        //处理时间
+        this.handleTime();
       }
     },
   },
@@ -243,6 +254,7 @@ export default {
   .chat-list {
     height: 100%;
     overflow: scroll;
+    padding: 0 2vw;
     // 单个聊天发言(公共)
     .chat-item {
       //时间
@@ -255,6 +267,11 @@ export default {
       .msg-main {
         display: flex;
         margin-bottom: 1vh;
+        .avatar {
+          .avatar-img {
+            box-shadow: 0.5vw 0.5vw 3.5vw rgba(0, 0, 0, 0.4);
+          }
+        }
         //内容
         .info {
           //名字
@@ -272,7 +289,7 @@ export default {
             .message {
               word-break: break-all;
               color: @text-c;
-              font-size: 3.7vw;
+              font-size: 3.55vw;
               font-weight: bold;
               line-height: 6.5vw;
               font-family: PingFangSC-Regular, sans-serif;

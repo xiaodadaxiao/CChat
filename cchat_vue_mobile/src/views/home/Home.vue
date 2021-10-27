@@ -46,6 +46,11 @@ export default {
     this.$socket.io.opts.query.token = localStorage.getItem('token');
     this.$socket.open();
   },
+  mounted() {
+    this.$store.dispatch('requestFriendApplyList');
+    this.$store.dispatch('requestGroupApplyList');
+    this.$store.dispatch('requestIndexMessage');
+  },
   destroyed() {
     /* 断开连接 */
     this.$socket.close();

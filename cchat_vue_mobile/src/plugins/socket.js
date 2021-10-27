@@ -15,8 +15,8 @@ const vueSocketIO = new VueSocketIO({
   connection: SocketIO(baseURL, socketOptions),
   vuex: {
     store,
-    actionPrefix: 'scoket_',
-    mutationPrefix: 'scoket_',
+    actionPrefix: 'socket_',
+    mutationPrefix: 'socket_',
   },
 });
 //提交函数

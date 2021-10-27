@@ -53,6 +53,10 @@ io.on('connection', async socket => {
   socket.on('lastTime', (data, cb) => {
     onLastTime(socket, data, cb);
   });
+
+  //测试
+  //socket.emit('test', 1);
+  //socket.emit('changeIndex', 1);
 });
 
 module.exports = server;
