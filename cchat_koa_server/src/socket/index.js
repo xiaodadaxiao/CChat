@@ -3,6 +3,7 @@ const app = require('../app');
 const memberService = require('../service/member.service');
 
 const { onMessage, onLastTime } = require('./message.socket');
+const { friendApply, groupApply } = require('./apply.socket');
 
 //导入服务
 const server = require('http').createServer(app.callback());
@@ -52,6 +53,14 @@ io.on('connection', async socket => {
   //更改最后聊天时间
   socket.on('lastTime', (data, cb) => {
     onLastTime(socket, data, cb);
+  });
+  //好友申请
+  socket.on('friendApply', (data, cb) => {
+    friendApply(socket, data, cb);
+  });
+  //群申请
+  socket.on('groupApply', (data, cb) => {
+    groupApply(socket, data, cb);
   });
 
   //测试

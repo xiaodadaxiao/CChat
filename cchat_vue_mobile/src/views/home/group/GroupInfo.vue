@@ -113,6 +113,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
 import {
   getGroupInfo,
   getMemberList,
@@ -242,6 +243,8 @@ export default {
         if (res.status !== 200) return this.$toast.fail(res.message);
         await this.init();
         this.$toast.success('申请成功，等待群主确认');
+        /* socket通知 */
+        this.$socketEmit('groupApply', { gid: this.gid });
       } catch (error) {
         console.log(error);
         this.$toast.fail('申请失败');
@@ -269,11 +272,12 @@ export default {
       if (list.length <= 0) return;
       try {
         const res = await inviteUsers(this.gid, list);
-
+        this.isShowInviteFriend = false;
+        if (res.status == 400) return this.$toast.fail('邀请失败');
         if (res.status == 200) this.$toast.success('邀请成功');
         if (res.status == 201) this.$toast.success(`成功邀请${res.applyCount}好友`);
-        if (res.status == 400) this.$toast.fail('邀请失败');
-        this.isShowInviteFriend = false;
+        /* socket通知 */
+        this.$socketEmit('groupApply', { gid: this.gid });
       } catch (error) {
         console.log(error);
         this.$toast.fail('邀请错误');
@@ -300,6 +304,7 @@ export default {
     },
   },
   computed: {
+    //...mapState({ cid: 'userCid' }),
     //选中分享好友数量
     selectCount() {
       let count = 0;

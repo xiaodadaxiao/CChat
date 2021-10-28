@@ -49,6 +49,8 @@
 
 <script>
 import * as userTypes from '@/constant/user';
+import * as messageType from '@/constant/message';
+import { mapState } from 'vuex';
 import { getUserInfo } from '@/network/user';
 import { addFriendApply, agreeApply, rejectApply } from '@/network/friend';
 export default {
@@ -56,6 +58,7 @@ export default {
   data() {
     return {
       userTypes,
+      messageType,
       isShowPoupup: false,
       userCid: '',
       myCid: '',
@@ -100,6 +103,8 @@ export default {
         return this.$toast.fail(res.message);
       }
       this.$toast.success('发送成功');
+      /* socket通知 */
+      this.$socketEmit('friendApply', { fromCid: this.cid, toCid: this.userCid });
       // 请求用户信息
       await this.getInfo();
       //关闭弹窗
@@ -109,6 +114,13 @@ export default {
     async agree() {
       const res = await agreeApply(this.userInfo.cid);
       if (res.status !== 200) return this.$toast.fail(res.message);
+      //发送第一句话
+      this.$socketEmit('message', {
+        content: '我已同意你的好友请求',
+        chatId: this.userCid,
+        chatType: this.messageType.CHAT_FRIEND,
+        type: this.messageType.TEXT,
+      });
       await this.getInfo();
     },
     async reject() {
@@ -132,6 +144,9 @@ export default {
           console.log('取消确定');
         });
     },
+  },
+  computed: {
+    ...mapState({ cid: 'userCid' }),
   },
 };
 </script>

@@ -46,5 +46,14 @@ const actions = {
       commit('changeIndexGroupMessage', [index, data]);
     }
   },
+
+  //新的好友申请信息通知
+  socket_friendApply({ dispatch }) {
+    dispatch('requestFriendApplyList');
+  },
+  //新的群申请信息通知
+  socket_groupApply({ dispatch }) {
+    dispatch('requestGroupApplyList');
+  },
 };
 export default actions;
