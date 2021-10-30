@@ -30,6 +30,7 @@ import {
   Popover,
   List,
   ActionSheet,
+  NoticeBar,
 } from 'vant';
 
 const list = [
@@ -63,6 +64,7 @@ const list = [
   Popover,
   List,
   ActionSheet,
+  NoticeBar,
 ];
 
 list.forEach(item => {

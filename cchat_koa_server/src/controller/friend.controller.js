@@ -178,6 +178,19 @@ class FriendCotroller {
       console.log(error);
     }
   }
+
+  //删除好友
+  async deleteFriend(ctx, next) {
+    try {
+      const friendCid = ctx.request.params.cid;
+      const cid = ctx.tokenInfo.cid;
+      await friendService.removeFriend(cid, friendCid);
+      ctx.body = { status: 200, message: '删除成功' };
+    } catch (error) {
+      console.log(error);
+      ctx.app.emit('error', { message: '删除好友失败' }, ctx);
+    }
+  }
 }
 
 module.exports = new FriendCotroller();

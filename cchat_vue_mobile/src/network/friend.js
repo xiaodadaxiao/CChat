@@ -50,3 +50,11 @@ export function rejectApply(cid) {
     method: 'post',
   });
 }
+
+//删除好友
+export function deleteFriend(friendCid) {
+  return request({
+    url: '/friend/' + friendCid,
+    method: 'delete',
+  });
+}

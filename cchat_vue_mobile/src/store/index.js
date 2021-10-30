@@ -14,6 +14,7 @@ export default new Vuex.Store({
     friendApplyList: [], //好友申请列表
     groupApplyList: [], //群申请列表
     indexMessage: [], //首页聊天信息
+    isConnectError: false, //连接是否失败
   },
   mutations,
   actions,

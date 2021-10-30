@@ -27,4 +27,20 @@ messageRouter.get(
   messageController.getGroupMessage
 );
 
+//删除好友聊天记录（修改delete_time）
+messageRouter.delete(
+  '/friend/:cid',
+  authMiddleware.checkToken,
+  friendMiddleware.checkFriend, //检查是否是好友)
+  messageController.removeFriendMessage
+);
+
+//删除群聊天信息
+messageRouter.delete(
+  '/group/:gid',
+  authMiddleware.checkToken,
+  memberMiddleware.checkInsideByParamGid, //检查是否在群里
+  messageController.removeGroupMessage
+);
+
 module.exports = messageRouter;

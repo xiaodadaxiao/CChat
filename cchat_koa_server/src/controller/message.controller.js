@@ -1,4 +1,6 @@
 const messageService = require('../service/message.service');
+const friendService = require('../service/friend.service');
+const memberService = require('../service/member.service');
 class MessageController {
   //得到首页信息
   async getIndexMessage(ctx, next) {
@@ -65,6 +67,31 @@ class MessageController {
     } catch (error) {
       console.log(error);
       ctx.app.emit('error', { message: '请求聊天信息失败' }, ctx);
+    }
+  }
+
+  //删除好友聊天记录（修改delete_time）
+  async removeFriendMessage(ctx, next) {
+    try {
+      const friendCid = ctx.request.params.cid;
+      const cid = ctx.tokenInfo.cid;
+      await friendService.updateFriendByKeyValue(cid, friendCid, 'delete_time', new Date());
+      ctx.body = { status: 200, message: '删除成功' };
+    } catch (error) {
+      console.log(error);
+      ctx.app.emit('error', { message: '删除好友信息失败' }, ctx);
+    }
+  }
+  //删除群聊天记录（修改delete_time）
+  async removeGroupMessage(ctx, next) {
+    try {
+      const gid = ctx.request.params.gid;
+      const cid = ctx.tokenInfo.cid;
+      await memberService.updateMemberByKeyValue(cid, gid, 'delete_time', new Date());
+      ctx.body = { status: 200, message: '删除成功' };
+    } catch (error) {
+      console.log(error);
+      ctx.app.emit('error', { message: '删除群信息失败' }, ctx);
     }
   }
 }

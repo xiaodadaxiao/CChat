@@ -6,6 +6,7 @@
 
 <script>
 import * as errorTypes from '@/constant/error';
+import { mapState } from 'vuex';
 export default {
   props: {},
   data() {
@@ -26,13 +27,15 @@ export default {
         });
         this.$router.replace('/login');
       } else {
-        this.$dialog.alert({
-          message: '连接聊天服务器失败',
-        });
+        if (this.isConnectError) return;
+        this.$toast.fail('连接聊天服务器失败！');
+        this.$store.commit('useConnectError', true);
       }
     },
     connect() {
       this.$toast.success('连接聊天服务器成功');
+      if (!this.isConnectError) return;
+      this.$store.commit('useConnectError', false);
     },
     nologin() {
       this.$dialog.alert({
@@ -56,6 +59,9 @@ export default {
     this.$socket.close();
   },
   methods: {},
+  computed: {
+    ...mapState(['isConnectError']),
+  },
 };
 </script>
 

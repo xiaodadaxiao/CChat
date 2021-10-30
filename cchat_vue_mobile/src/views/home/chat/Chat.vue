@@ -30,13 +30,15 @@
             <div class="time">{{ item.updateAt | chatDateFormat }}</div>
             <div class="msg-main">
               <!-- 头像 -->
-              <div class="avatar">
+              <div class="avatar" @click="goInfo('user', item.talker_cid)">
                 <van-image width="45" class="avatar-img" height="45" :src="item.avatar_url" />
               </div>
               <!-- 名字和内容 -->
               <div class="info">
                 <!-- 群用户且在左侧 才显示名字 -->
-                <div class="name show-one-row" v-if="chatType == 'group' && userCid !== item.talker_cid">{{ item.nickname }}</div>
+                <div class="name show-one-row" v-if="chatType == 'group' && userCid !== item.talker_cid">
+                  {{ item.nickname ? item.nickname : item.name }}
+                </div>
                 <div class="value">
                   <!-- 文本 -->
                   <div class="message" v-if="item.type == messageType.TEXT">
@@ -158,8 +160,9 @@ export default {
       this.$router.go(-1);
     },
     goInfo(type, id) {
-      if (type == 'friend') this.$router.push('/home/user/' + id);
-      if (type == 'group') this.$router.push('/home/group/' + id);
+      if (type == this.messageType.CHAT_FRIEND) this.$router.push('/home/user/' + id);
+      if (type == 'user') this.$router.push('/home/user/' + id);
+      if (type == this.messageType.CHAT_GROUP) this.$router.push('/home/group/' + id);
     },
     //上拉加载
     onLoad() {

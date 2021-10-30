@@ -1,7 +1,11 @@
 <template>
   <div class="userinfo-container">
     <div class="bg-img" :style="{ backgroundImage: 'url(' + userInfo.avatarUrl + ')' }"></div>
-    <van-nav-bar title="用户信息" left-arrow @click-left="onClickLeft" />
+    <van-nav-bar title="用户信息" left-arrow @click-left="onClickLeft" @click-right="isShowFriendHandle = true">
+      <template #right v-if="relation.type == userTypes.RELATION_FRIEND">
+        <van-icon name="wap-nav" size="20" color="#ff6900" />
+      </template>
+    </van-nav-bar>
     <div class="main">
       <!-- 用户信息展示 -->
       <div class="info">
@@ -43,6 +47,8 @@
           </template>
         </van-field>
       </van-popup>
+      <!-- 好友操作面板 -->
+      <van-action-sheet v-model="isShowFriendHandle" :actions="friendActions" @select="onFriendHandleSelect" />
     </div>
   </div>
 </template>
@@ -52,7 +58,7 @@ import * as userTypes from '@/constant/user';
 import * as messageType from '@/constant/message';
 import { mapState } from 'vuex';
 import { getUserInfo } from '@/network/user';
-import { addFriendApply, agreeApply, rejectApply } from '@/network/friend';
+import { addFriendApply, agreeApply, rejectApply, deleteFriend } from '@/network/friend';
 export default {
   props: {},
   data() {
@@ -65,6 +71,8 @@ export default {
       userInfo: {},
       relation: {}, //用户关系信息
       inputText: '',
+      isShowFriendHandle: false, //是否展示好友操作
+      friendActions: [{ name: '修改备注' }, { name: '加入黑名单' }, { name: '删除好友', color: 'red' }],
     };
   },
 
@@ -121,7 +129,8 @@ export default {
         chatType: this.messageType.CHAT_FRIEND,
         type: this.messageType.TEXT,
       });
-      await this.getInfo();
+      this.getInfo();
+      this.$store.dispatch('requestFriendApplyList');
     },
     async reject() {
       this.$dialog
@@ -137,12 +146,34 @@ export default {
                 return this.$toast.fail(res.message);
               }
               this.getInfo();
+
+              this.$store.dispatch('requestFriendApplyList');
             })
             .catch(err => this.$toast.fail('请求失败'));
         })
         .catch(() => {
           console.log('取消确定');
         });
+    },
+
+    //好友操作
+    async onFriendHandleSelect({ name }) {
+      console.log(name);
+      this.isShowFriendHandle = false;
+      if (name == '删除好友') {
+        //删除用户
+        const confirm = await this.$dialog.confirm({
+          title: '删除好友',
+          message: '是否要删除该好友？',
+        });
+        if (confirm != 'confirm') return;
+        const res = await deleteFriend(this.userCid);
+        if (res.status !== 200) this.$toast.fail(res.message);
+        this.$toast.success('删除成功');
+        this.getInfo();
+        this.$store.dispatch('requestIndexMessage');
+        this.$router.replace('/home/main');
+      }
     },
   },
   computed: {

@@ -213,6 +213,7 @@ export default {
         if (res.status !== 200) return this.$toast.fail(res.message);
         await this.init();
         this.$toast.success('修改成功');
+        this.$store.dispatch('requestIndexMessage');
       } catch (error) {
         console.log(error);
         this.$toast.fail('修改失败');

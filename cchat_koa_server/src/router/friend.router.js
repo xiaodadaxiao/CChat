@@ -48,4 +48,12 @@ friendRouter.get(
   friendController.getFriendInfo
 );
 
+//删除好友
+friendRouter.delete(
+  '/:cid',
+  authMiddleware.checkToken,
+  friendMiddleware.checkFriend, //是否是好友
+  friendController.deleteFriend
+);
+
 module.exports = friendRouter;

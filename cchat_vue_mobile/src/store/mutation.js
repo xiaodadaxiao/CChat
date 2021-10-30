@@ -12,6 +12,15 @@ const mutations = {
   useIndexMessage(state, list) {
     state.indexMessage = list;
   },
+  removeOneIndexMessage({ indexMessage }, [type, id]) {
+    const index = indexMessage.findIndex((item, index) => {
+      if (item.type !== type) return false;
+      if (item.data.friend_cid && item.data.friend_cid === id) return true;
+      if (item.data.gid && item.data.gid == id) return true;
+    });
+    //删除数据
+    indexMessage.splice(index, 1);
+  },
   changeIndexFriendMessage({ indexMessage }, [index, data]) {
     let msg = indexMessage[index];
     //改变数值
@@ -43,6 +52,10 @@ const mutations = {
       return false;
     });
     if (msg) msg.data.count = count;
+  },
+  useConnectError(state, flag) {
+    if (state.isConnectError == flag) return;
+    state.isConnectError = flag;
   },
 };
 export default mutations;

@@ -73,6 +73,13 @@ class FriendService {
     const [result] = await connection.execute(statement, arr);
     return result;
   }
+
+  //删除好友
+  async removeFriend(userCid, friendCid) {
+    const statement = `DELETE FROM friend_apply WHERE  (user_cid=? OR friend_cid=?) AND  (user_cid=? OR friend_cid=?);`;
+    const [result] = await connection.execute(statement, [userCid, userCid, friendCid, friendCid]);
+    return result;
+  }
 }
 
 module.exports = new FriendService();

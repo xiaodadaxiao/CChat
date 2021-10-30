@@ -18,3 +18,7 @@ export const APPLY_BLACKLIST = 3; //黑名单
 export const RELATION_STRANGER = 'STRANGER'; //陌生人
 export const RELATION_JOIN = 'JOIN'; //已加入
 export const RELATION_LEADER = 'LEADER'; //群主
+/* 用户的群接收状态 */
+
+export const REMIND_NORMAL = 1; //正常（true）
+export const REMIND_NOT_DISTURB = 0; //免打扰
