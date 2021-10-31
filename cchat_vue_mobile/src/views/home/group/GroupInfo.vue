@@ -230,7 +230,7 @@ export default {
         const res = await quit(this.gid);
         if (res.status !== 200) return this.$toast.fail(res.message);
         this.$toast.success('退出成功');
-        this.init();
+        this.$router.replace('/home');
       } catch (error) {
         if (error == 'cancel') return;
         console.log(error);

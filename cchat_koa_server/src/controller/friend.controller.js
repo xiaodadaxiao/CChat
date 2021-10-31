@@ -1,5 +1,6 @@
 const friendService = require('../service/friend.service');
 const frinendTypes = require('../constant/friend.constant');
+const Val = require('../utils/validator');
 const pinyin = require('pinyin');
 const userService = require('../service/user.service');
 //处理好友数据
@@ -189,6 +190,59 @@ class FriendCotroller {
     } catch (error) {
       console.log(error);
       ctx.app.emit('error', { message: '删除好友失败' }, ctx);
+    }
+  }
+
+  //修改好友备注
+  async updateNickname(ctx, next) {
+    const nickname = ctx.request.body.nickname;
+    const friendCid = ctx.request.params.cid;
+    const cid = ctx.tokenInfo.cid;
+    try {
+      if (!new Val(nickname).string().notnull().maxlen(20).end()) {
+        return ctx.app.emit('error', { message: '参数不正确' }, ctx);
+      }
+      await friendService.updateFriendByKeyValue(cid, friendCid, 'nickname', nickname);
+      ctx.body = { status: 200, message: '修改成功' };
+    } catch (error) {
+      console.log(error);
+      ctx.app.emit('error', { message: '修改昵称错误' }, ctx);
+    }
+  }
+  //好友加入黑名单
+  async addBackList(ctx, next) {
+    const friendCid = ctx.request.params.cid;
+    const cid = ctx.tokenInfo.cid;
+    try {
+      await friendService.updateFriendByKeyValue(cid, friendCid, 'state', frinendTypes.BLACKLIST);
+      ctx.body = { status: 200, message: '拉黑成功' };
+    } catch (error) {
+      console.log(error);
+      ctx.app.emit('error', { message: '加入黑名单错误' }, ctx);
+    }
+  }
+  //好友移出黑名单
+  async removeBackList(ctx, next) {
+    const friendCid = ctx.request.params.cid;
+    const cid = ctx.tokenInfo.cid;
+    try {
+      await friendService.updateFriendByKeyValue(cid, friendCid, 'state', frinendTypes.NORMAL);
+      ctx.body = { status: 200, message: '移出成功' };
+    } catch (error) {
+      console.log(error);
+      ctx.app.emit('error', { message: '移出黑名单错误' }, ctx);
+    }
+  }
+
+  //得到好友黑名单
+  async getBackList(ctx, next) {
+    const cid = ctx.tokenInfo.cid;
+    try {
+      const backList = await friendService.getBackList(cid);
+      ctx.body = { status: 200, message: '请求成功', backList };
+    } catch (error) {
+      console.log(error);
+      ctx.app.emit('error', { message: '得到好友黑名单错误' }, ctx);
     }
   }
 }

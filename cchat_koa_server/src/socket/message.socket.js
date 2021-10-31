@@ -15,6 +15,10 @@ async function onMessage(socket, data, cb) {
     const [friendInfo] = await friendService.getFriendByCid(chatId, socket.cid);
     if (!friendInfo) return cb(null, '对方不是你的好友');
     if (friendInfo.state == friendType.BLACKLIST) return cb(null, '对方已将你拉入黑名单');
+    //判断我是否拉黑好友
+    const [myInfo] = await friendService.getFriendByCid(socket.cid, chatId);
+    if (!myInfo) return cb(null, '对方不是你的好友');
+    if (myInfo.state == friendType.BLACKLIST) return cb(null, '你已将对方拉黑，请先移出黑名单');
     //数据库保存聊天
     const result = await messageService.addFriendMessage(socket.cid, chatId, content, type);
     cb('发送成功');

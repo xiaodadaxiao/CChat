@@ -40,6 +40,7 @@ class UserController {
         res.relation.info = {
           nickname: friendInfo['nickname'],
           lastTime: friendInfo['last_time'],
+          state: friendInfo.state,
         };
         return (ctx.body = res);
       }

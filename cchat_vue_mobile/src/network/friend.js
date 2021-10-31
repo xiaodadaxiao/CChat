@@ -12,7 +12,7 @@ export function getFriendList() {
 //获取好友信息
 export function getFriendInfo(friendCid) {
   return request({
-    url: '/friend/' + friendCid,
+    url: `/friend/${friendCid}/info`,
     method: 'get',
   });
 }
@@ -56,5 +56,37 @@ export function deleteFriend(friendCid) {
   return request({
     url: '/friend/' + friendCid,
     method: 'delete',
+  });
+}
+
+//修改好友备注
+export function changeNickname(friendCid, nickname) {
+  return request({
+    url: `/friend/${friendCid}/nickname`,
+    method: 'patch',
+    data: { nickname },
+  });
+}
+//好友加入黑名单
+export function backlist(friendCid) {
+  return request({
+    url: `/friend/${friendCid}/backlist`,
+    method: 'post',
+  });
+}
+
+//好友移出黑名单
+export function removeBacklist(friendCid) {
+  return request({
+    url: `/friend/${friendCid}/backlist`,
+    method: 'delete',
+  });
+}
+
+//得到黑名单列表
+export function getBacklist() {
+  return request({
+    url: `/friend/backlist`,
+    method: 'get',
   });
 }

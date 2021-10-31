@@ -42,7 +42,7 @@ friendRouter.post(
 
 //获取好友信息
 friendRouter.get(
-  '/:cid',
+  '/:cid/info',
   authMiddleware.checkToken, //检查token
   friendMiddleware.checkFriend, //检查是否是好友
   friendController.getFriendInfo
@@ -54,6 +54,35 @@ friendRouter.delete(
   authMiddleware.checkToken,
   friendMiddleware.checkFriend, //是否是好友
   friendController.deleteFriend
+);
+
+//修改好友备注
+friendRouter.patch(
+  '/:cid/nickname',
+  authMiddleware.checkToken,
+  friendMiddleware.checkFriend, //是否是好友
+  friendController.updateNickname
+);
+//好友加入黑名单
+friendRouter.post(
+  '/:cid/backlist',
+  authMiddleware.checkToken,
+  friendMiddleware.checkFriend, //是否是好友
+  friendController.addBackList
+);
+//好友移出黑名单
+friendRouter.delete(
+  '/:cid/backlist',
+  authMiddleware.checkToken,
+  friendMiddleware.checkFriend, //是否是好友
+  friendController.removeBackList
+);
+
+//得到好友黑名单列表
+friendRouter.get(
+  '/backlist',
+  authMiddleware.checkToken, //检查token
+  friendController.getBackList
 );
 
 module.exports = friendRouter;

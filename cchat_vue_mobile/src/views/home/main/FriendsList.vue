@@ -17,7 +17,7 @@
       </template>
     </van-nav-bar>
     <!-- 添加好友单元格 -->
-    <van-cell title="添加好友/群" center is-link title-style="padding-left:20px" @click="showAddFriend">
+    <van-cell title="添加好友/群" center is-link title-style="padding-left:20px" @click="isShowAddFriend = true">
       <template #icon>
         <van-image width="30" height="30" :src="require('@/assets/img/add-friend.png')" />
       </template>
@@ -32,6 +32,36 @@
         <van-image width="30" height="30" :src="require('@/assets/img/group.png')" />
       </template>
     </van-cell>
+    <!-- 黑名单 -->
+    <van-cell title="好友黑名单" center is-link title-style="padding-left:20px" @click="showBackList">
+      <template #icon>
+        <van-image width="30" height="30" :src="require('@/assets/img/backlist.png')" />
+      </template>
+    </van-cell>
+
+    <!-- 好友列表 -->
+    <div class="listBox" v-if="Object.keys(friendList).length > 0">
+      <van-index-bar :index-list="indexList" :sticky="false">
+        <div v-for="(codeList, key) in friendList" :key="key">
+          <van-index-anchor :index="key" />
+          <van-cell
+            v-for="item in codeList"
+            :key="item.friendCid"
+            center
+            :title="item.nickname"
+            size="large"
+            title-style="padding-left:20px"
+            @click="goChat('friend', item.friendCid)"
+          >
+            <template #icon>
+              <van-image width="40" height="40" :src="item.avatarUrl" />
+            </template>
+          </van-cell>
+        </div>
+      </van-index-bar>
+    </div>
+    <van-empty v-else description="没有好友，快去添加更多好友吧" />
+
     <!-- 搜索和通知界面 -->
     <van-popup v-model="isShowAddFriend" position="bottom" :style="{ height: '80vh', 'padding-top': '2vh' }">
       <van-tabs type="card" animated color="#ff6900">
@@ -119,34 +149,31 @@
         </template>
       </van-search>
     </van-popup>
-    <!-- 好友列表 -->
-    <div class="listBox" v-if="Object.keys(friendList).length > 0">
-      <van-index-bar :index-list="indexList" :sticky="false">
-        <div v-for="(codeList, key) in friendList" :key="key">
-          <van-index-anchor :index="key" />
-          <van-cell
-            v-for="item in codeList"
-            :key="item.friendCid"
-            center
-            :title="item.nickname"
-            size="large"
-            title-style="padding-left:20px"
-            @click="goChat('friend', item.friendCid)"
-          >
-            <template #icon>
-              <van-image width="40" height="40" :src="item.avatarUrl" />
-            </template>
-          </van-cell>
-        </div>
-      </van-index-bar>
-    </div>
-    <van-empty v-else description="没有好友，快去添加更多好友吧" />
+    <!-- 黑名单界面 -->
+    <van-popup v-model="isShowBackListGroup" position="bottom" :style="{ height: '80vh', 'padding-top': '2vh' }">
+      <van-divider>好友黑名单</van-divider>
+      <van-cell
+        :title="item.nickname"
+        center
+        is-link
+        title-style="padding-left:20px"
+        v-for="item in backList"
+        :key="item.apply_id"
+      >
+        <template #icon>
+          <van-image width="35" height="35" :src="item.avatar_url" @click="goChat('friend', item.friend_cid)" />
+        </template>
+        <template #right-icon>
+          <van-button type="primary" size="small" @click="removeBackList(item.friend_cid)">移除黑名单</van-button>
+        </template>
+      </van-cell>
+    </van-popup>
   </div>
 </template>
 
 <script>
 import { mapState, mapGetters } from 'vuex';
-import { getFriendList } from '@/network/friend';
+import { getFriendList, getBacklist, removeBacklist } from '@/network/friend';
 import { getGroupList, searchGroup, agreeGroupApply, rejectGroupApply, createGroup } from '@/network/group';
 import { searchUser } from '@/network/user';
 import Val from '@/utils/validator';
@@ -157,10 +184,12 @@ export default {
       indexList: [], //好友列表索引
       friendList: {}, //好友列表
       groupList: [], //群聊列表
+      backList: [], //好友黑名单列表
       isShowAddFriend: false, //是否展示添加面板
       isShowGroupList: false, //是否展示群聊列表面板
       isShowPopover: false, //右上角选项
       isShowCreateGroup: false, //是否显示创建群聊
+      isShowBackListGroup: false, //是否展示黑名单界面
       inputCid: '', //输入的cid
       inputGid: '', //输入的gid
       inputCreateGname: '', //输入的创建群名称
@@ -170,7 +199,6 @@ export default {
     try {
       const res = await getFriendList();
       if (res.status == 200 || res.status == 201) {
-        //console.log(res);
         this.friendList = res.data;
         this.indexList = Object.keys(res.data); //获得索引数组
       } else {
@@ -181,9 +209,6 @@ export default {
     }
   },
   methods: {
-    showAddFriend() {
-      this.isShowAddFriend = true;
-    },
     async onSearchCid() {
       if (this.inputCid === '') return;
       const res = await searchUser(this.inputCid);
@@ -223,6 +248,30 @@ export default {
         this.$toast.fail('请求群聊列表失败');
       }
     },
+    //点击展示黑名单
+    async showBackList() {
+      this.isShowBackListGroup = true;
+      try {
+        const res = await getBacklist();
+        if (res.status !== 200) return this.$toast.fail(res.message);
+        this.backList = res.backList;
+      } catch (error) {
+        console.log(error);
+        this.$toast.fail('请求黑名单列表错误');
+      }
+    },
+    //点击移除黑名单
+    async removeBackList(friendCid) {
+      try {
+        const res = await removeBacklist(friendCid);
+        if (res.status !== 200) return this.$toast.fail(res.message);
+        this.$toast.success('操作成功');
+        this.isShowBackListGroup = false;
+      } catch (error) {
+        console.log(error);
+        return this.$toast.fail('移出发生错误');
+      }
+    },
     //处理入群申请
     async handleGroupApply(gid, inviteeCid, type) {
       const types = { agree: agreeGroupApply, reject: rejectGroupApply };
@@ -256,7 +305,7 @@ export default {
         this.$toast.fail('错误');
       }
     },
-    //选择选项
+    //右上角选择选项
     onPopoverSelect({ text }) {
       if (text == '创建群聊') {
         this.inputCreateGname = '';
@@ -276,7 +325,8 @@ export default {
   padding-top: 46px; //navbar高度
 }
 .listBox {
-  height: calc(100vh - 50px - 46px - 50px); //100vh-tabbar高度-navbar高度 -头部添加好友按钮
+  //100vh-tabbar高度-navbar高度 -添加好友单元格 -我的群聊单元格 -好友黑名单单元格
+  height: calc(100vh - 50px - 46px - 50px - 50px - 50px);
   overflow: scroll;
 }
 .apply-list {

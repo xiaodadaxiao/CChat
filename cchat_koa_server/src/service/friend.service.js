@@ -1,4 +1,5 @@
 const connection = require('../app/database');
+const frinendTypes = require('../constant/friend.constant');
 // 好友相关数据库操作
 
 class FriendService {
@@ -78,6 +79,15 @@ class FriendService {
   async removeFriend(userCid, friendCid) {
     const statement = `DELETE FROM friend_apply WHERE  (user_cid=? OR friend_cid=?) AND  (user_cid=? OR friend_cid=?);`;
     const [result] = await connection.execute(statement, [userCid, userCid, friendCid, friendCid]);
+    return result;
+  }
+
+  //得到黑名单列表
+  async getBackList(userCid) {
+    const statement = `SELECT apply_id,friend_cid,nickname,f.state state, name,avatar_url 
+                        FROM friend  f LEFT JOIN USER u ON u.cid=f.friend_cid 
+                        WHERE f.user_cid=10000 AND f.state=${frinendTypes.BLACKLIST}`;
+    const [result] = await connection.execute(statement, [userCid]);
     return result;
   }
 }

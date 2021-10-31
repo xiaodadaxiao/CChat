@@ -161,18 +161,13 @@ export default {
         this.init();
       }
       if (type == 'ban') {
-        //删除用户
+        //禁言用户
         const confirm = await this.$dialog.confirm({
           title: '禁言用户',
           message: '是否要禁言该用户？',
         });
         if (confirm != 'confirm') return;
-        //发送请求
-        // const res = await removeUser(this.gid, cid);
-        // if (res.status != 200) return this.$toast.fail(res.message);
-        // this.$toast.success('移除成功');
-        // this.isShowList = false;
-        // this.init();
+        this.$toast.fail('抱歉，禁言功能未开放');
       }
     },
   },

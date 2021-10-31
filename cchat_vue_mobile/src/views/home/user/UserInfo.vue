@@ -49,6 +49,14 @@
       </van-popup>
       <!-- 好友操作面板 -->
       <van-action-sheet v-model="isShowFriendHandle" :actions="friendActions" @select="onFriendHandleSelect" />
+      <!-- 好友修改昵称面板 -->
+      <van-popup v-model="isShowHandlePoupup" round position="bottom" :style="{ height: '30vh' }">
+        <van-field label="修改备注" placeholder="输入新备注" v-model.trim="inputNickname">
+          <template #button>
+            <van-button size="small" type="primary" @click="changeNickname">修改</van-button>
+          </template>
+        </van-field>
+      </van-popup>
     </div>
   </div>
 </template>
@@ -56,9 +64,18 @@
 <script>
 import * as userTypes from '@/constant/user';
 import * as messageType from '@/constant/message';
+import * as friendTypes from '@/constant/friend';
 import { mapState } from 'vuex';
 import { getUserInfo } from '@/network/user';
-import { addFriendApply, agreeApply, rejectApply, deleteFriend } from '@/network/friend';
+import {
+  addFriendApply,
+  agreeApply,
+  rejectApply,
+  deleteFriend,
+  changeNickname,
+  backlist,
+  removeBacklist,
+} from '@/network/friend';
 export default {
   props: {},
   data() {
@@ -66,13 +83,16 @@ export default {
       userTypes,
       messageType,
       isShowPoupup: false,
+      isShowHandlePoupup: false,
       userCid: '',
       myCid: '',
       userInfo: {},
       relation: {}, //用户关系信息
       inputText: '',
       isShowFriendHandle: false, //是否展示好友操作
-      friendActions: [{ name: '修改备注' }, { name: '加入黑名单' }, { name: '删除好友', color: 'red' }],
+
+      isShowHandlePoupup: false,
+      inputNickname: '',
     };
   },
 
@@ -158,10 +178,9 @@ export default {
 
     //好友操作
     async onFriendHandleSelect({ name }) {
-      console.log(name);
       this.isShowFriendHandle = false;
+      //1 删除好友
       if (name == '删除好友') {
-        //删除用户
         const confirm = await this.$dialog.confirm({
           title: '删除好友',
           message: '是否要删除该好友？',
@@ -174,10 +193,62 @@ export default {
         this.$store.dispatch('requestIndexMessage');
         this.$router.replace('/home/main');
       }
+      //2 修改备注
+      if (name == '修改备注') {
+        this.isShowHandlePoupup = true;
+        this.inputNickname = '';
+      }
+      //3 加入黑名单
+      if (name == '加入黑名单') {
+        const confirm = await this.$dialog.confirm({
+          title: '加入黑名单',
+          message: '是否要将好友加入黑名单？',
+        });
+        if (confirm != 'confirm') return;
+        const res = await backlist(this.userCid);
+        if (res.status !== 200) return this.$toast.fail(res.message);
+        this.$toast.success('修改成功');
+        this.getInfo();
+      }
+      //4 移出黑名单
+      if (name == '移出黑名单') {
+        const res = await removeBacklist(this.userCid);
+        if (res.status !== 200) return this.$toast.fail(res.message);
+        this.$toast.success('移出成功');
+        this.getInfo();
+      }
+    },
+    //点击修改好友备注
+    async changeNickname() {
+      if (this.inputNickname == '' || this.inputNickname.length > 20) {
+        return this.$toast.fail('备注需为20位以下非空字符串');
+      }
+      try {
+        const res = await changeNickname(this.userCid, this.inputNickname);
+        if (res.status !== 200) return this.$toast.fail(res.message);
+        this.$toast.success('修改成功');
+        this.isShowHandlePoupup = false;
+        this.getInfo();
+        this.$store.dispatch('requestIndexMessage');
+      } catch (error) {
+        console.log(error);
+        this.$toast.fail('修改出错');
+      }
     },
   },
   computed: {
     ...mapState({ cid: 'userCid' }),
+    //好友操作选项
+    friendActions() {
+      const action = [{ name: '修改备注' }, { name: '删除好友', color: 'red' }];
+      if (this.relation.type == userTypes.RELATION_FRIEND && this.relation.info.state == friendTypes.BLACKLIST) {
+        action.push({ name: '移出黑名单' });
+      }
+      if (this.relation.type == userTypes.RELATION_FRIEND && this.relation.info.state == friendTypes.NORMAL) {
+        action.push({ name: '加入黑名单', color: 'red' });
+      }
+      return action;
+    },
   },
 };
 </script>

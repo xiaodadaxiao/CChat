@@ -27,7 +27,7 @@
           <!-- 发言 -->
           <div :class="userCid !== item.talker_cid ? 'chat-item chat-item-l' : 'chat-item chat-item-r'">
             <!-- 时间 -->
-            <div class="time">{{ item.updateAt | chatDateFormat }}</div>
+            <div class="time">{{ item.showTime | chatDateFormat }}</div>
             <div class="msg-main">
               <!-- 头像 -->
               <div class="avatar" @click="goInfo('user', item.talker_cid)">
@@ -119,31 +119,12 @@ export default {
   },
   async mounted() {
     //请求聊天数据
-    try {
-      if (this.chatType == 'friend') {
-        const res = await getFriendMessage(this.chatId, this.friendMessage.length, this.page * 10);
-        if (res.status !== 200) return this.$toast.fail(res.messag);
-        this.friendMessage.push(...res.data);
-        //排序
-        this.friendMessage.sort((a, b) => new Date(a.updateAt) - new Date(b.updateAt));
-      }
-      if (this.chatType == 'group') {
-        const res = await getGroupMessage(this.chatId, this.groupMessage.length, this.page * 10);
-        if (res.status !== 200) return this.$toast.fail(res.messag);
-        this.groupMessage.push(...res.data);
-        //排序
-        this.groupMessage.sort((a, b) => new Date(a.updateAt) - new Date(b.updateAt));
-      }
-      //处理时间
-      this.handleTime();
-      //得到滑动区域
-      this.scrollDiv = document.querySelector('.chat-list');
-      //滑动到底部
-      this.scroll();
-    } catch (error) {
-      console.log(error);
-      this.$toast.fail('请求聊天数据错误');
-    }
+    await this.init();
+
+    //得到滑动区域
+    this.scrollDiv = document.querySelector('.chat-list');
+    //滑动到底部
+    this.scroll();
   },
   beforeDestroy() {
     /* 更新最后聊天时间 */
@@ -155,6 +136,34 @@ export default {
     chatDateFormat,
   },
   methods: {
+    async init() {
+      //请求聊天数据
+      try {
+        if (this.chatType == 'friend') {
+          const res = await getFriendMessage(this.chatId, this.friendMessage.length, this.page * 10);
+          if (res.status !== 200) return this.$toast.fail(res.messag);
+          this.friendMessage.push(...res.data);
+          //设置为无可加载
+          if (res.count <= this.friendMessage.length) this.finished = true;
+          //排序
+          this.friendMessage.sort((a, b) => new Date(a.updateAt) - new Date(b.updateAt));
+        }
+        if (this.chatType == 'group') {
+          const res = await getGroupMessage(this.chatId, this.groupMessage.length, this.page * 10);
+          if (res.status !== 200) return this.$toast.fail(res.messag);
+          this.groupMessage.push(...res.data);
+          //设置为无可加载
+          if (res.count <= this.groupMessage.length) this.finished = true;
+          //排序
+          this.groupMessage.sort((a, b) => new Date(a.updateAt) - new Date(b.updateAt));
+        }
+        //处理时间
+        this.handleTime();
+      } catch (error) {
+        console.log(error);
+        this.$toast.fail('请求聊天数据错误');
+      }
+    },
     onClickLeft() {
       // this.$router.replace('/home/main');
       this.$router.go(-1);
@@ -165,12 +174,14 @@ export default {
       if (type == this.messageType.CHAT_GROUP) this.$router.push('/home/group/' + id);
     },
     //上拉加载
-    onLoad() {
-      console.log('加载。。。');
-      setTimeout(() => {
-        this.loading = false;
-        this.finished = true;
-      }, 1000);
+    async onLoad() {
+      //记录当前位置(距离底部)
+      const bottom = this.scrollDiv.scrollHeight - this.scrollDiv.scrollTop;
+      await this.init();
+      //滚动到当前位置
+      this.scroll(bottom);
+      //完成加载
+      this.loading = false;
     },
     //输入栏高度变化
     submitHeightChange(h) {
@@ -191,10 +202,10 @@ export default {
     clickImg(url) {
       ImagePreview([url]);
     },
-    //滚动到底部
-    scroll() {
+    //滚动(距离底部高度)
+    scroll(bottom = 0) {
       this.$nextTick(() => {
-        this.scrollDiv.scrollTop = this.scrollDiv.scrollHeight;
+        this.scrollDiv.scrollTop = this.scrollDiv.scrollHeight - bottom;
       });
     },
     //处理时间
@@ -203,18 +214,18 @@ export default {
       for (let i = this.friendMessage.length - 1; i >= 0; i--) {
         let m = this.friendMessage[i];
         if (i == 0) {
-          m.updateAt = handleChatDate(m.updateAt, null);
+          m.showTime = handleChatDate(m.updateAt, null);
         } else {
-          m.updateAt = handleChatDate(m.updateAt, this.friendMessage[i - 1].updateAt);
+          m.showTime = handleChatDate(m.updateAt, this.friendMessage[i - 1].updateAt);
         }
       }
       //群时间
       for (let i = this.groupMessage.length - 1; i >= 0; i--) {
         let m = this.groupMessage[i];
         if (i == 0) {
-          m.updateAt = handleChatDate(m.updateAt, null);
+          m.showTime = handleChatDate(m.updateAt, null);
         } else {
-          m.updateAt = handleChatDate(m.updateAt, this.groupMessage[i - 1].updateAt);
+          m.showTime = handleChatDate(m.updateAt, this.groupMessage[i - 1].updateAt);
         }
       }
     },
