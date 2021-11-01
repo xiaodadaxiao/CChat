@@ -9,21 +9,40 @@
       <!-- 表情 -->
       <van-icon name="smile-o" size="34" :style="{ color: isShowEmjoi ? '#ff6900' : 'black' }" @click="clickShowEmjoi" />
       <!-- +号 -->
-      <van-icon name="add-o" size="34" v-show="!isShowBtn" @click="isShowMore = true" />
+      <van-icon
+        name="add-o"
+        size="34"
+        v-show="!isShowBtn"
+        :style="{ color: isShowMore ? '#ff6900' : 'black' }"
+        @click="clickShowMore"
+      />
       <van-button v-show="isShowBtn" type="primary" size="small" @click="send">发送</van-button>
     </div>
     <!-- 表情区-->
     <div class="emjoi" v-show="isShowEmjoi">
       <div v-for="(e, i) in emjoiList" :key="i" @click="inputValue += e">{{ e }}</div>
     </div>
+
     <!-- 操作区 -->
-    <van-action-sheet v-model="isShowMore" :actions="[{ name: '图片' }, { name: '位置' }]" @select="onSelectMore" />
+    <div class="more" v-show="isShowMore">
+      <van-uploader accept="image/*" :after-read="afterReadImage">
+        <div class="more-item">
+          <img :src="require('@/assets/img/image.png')" />
+          <div>图片</div>
+        </div>
+      </van-uploader>
+      <div class="more-item">
+        <img :src="require('@/assets/img/position.png')" />
+        <div>位置</div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import * as messageType from '@/constant/message';
 import emjoiList from './emjoiData';
+import { uploadImage } from '@/network/file';
 export default {
   props: {},
   data() {
@@ -45,14 +64,33 @@ export default {
     },
     //点击切换展示表情
     clickShowEmjoi() {
+      this.isShowMore = false;
       this.isShowEmjoi = !this.isShowEmjoi;
       //计算高度
       this.$nextTick(this.getHeight);
     },
-    onSelectMore(item) {
-      this.isShowMore = false;
-      console.log(item.name);
+    //点击切换更多
+    clickShowMore() {
+      this.isShowEmjoi = false;
+      this.isShowMore = !this.isShowMore;
+      //计算高度
+      this.$nextTick(this.getHeight);
     },
+    //上传图片
+    async afterReadImage(file) {
+      if (file.file.size > 5 * 1024 * 1024) return this.$toast.fail('图片不能超过5M！');
+      try {
+        const formData = new FormData();
+        formData.append('image', file.file);
+        const res = await uploadImage(formData);
+        if (res.status !== 200) return this.$toast.fail(res.message);
+        this.$emit('send', messageType.IMAGE, res.url);
+      } catch (error) {
+        console.log(error);
+        this.$toast.fail('发生错误');
+      }
+    },
+
     //发送
     send() {
       this.$emit('send', messageType.TEXT, this.inputValue);
@@ -100,6 +138,26 @@ export default {
       text-align: center;
       font-size: 7vw;
       line-height: 15vw;
+    }
+  }
+  //更多操作区
+  .more {
+    width: 100vw;
+    height: 20vh;
+    display: flex;
+    overflow: scroll;
+    .more-item {
+      width: 25vw;
+      height: 15vh;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      img {
+        width: 50%;
+        margin-bottom: 1vw;
+      }
     }
   }
 }

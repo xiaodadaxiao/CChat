@@ -31,6 +31,7 @@ import {
   List,
   ActionSheet,
   NoticeBar,
+  Uploader,
 } from 'vant';
 
 const list = [
@@ -65,6 +66,7 @@ const list = [
   List,
   ActionSheet,
   NoticeBar,
+  Uploader,
 ];
 
 list.forEach(item => {

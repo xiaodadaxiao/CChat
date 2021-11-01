@@ -30,8 +30,14 @@
             <div class="time">{{ item.showTime | chatDateFormat }}</div>
             <div class="msg-main">
               <!-- 头像 -->
-              <div class="avatar" @click="goInfo('user', item.talker_cid)">
-                <van-image width="45" class="avatar-img" height="45" :src="item.avatar_url" />
+              <div class="avatar">
+                <van-image
+                  width="45"
+                  class="avatar-img"
+                  height="45"
+                  @click="goInfo('user', item.talker_cid)"
+                  :src="item.avatar_url"
+                />
               </div>
               <!-- 名字和内容 -->
               <div class="info">
