@@ -1,6 +1,7 @@
 const envConfig = require('./env');
-const keys = require('./keys')
+const keys = require('./keys');
+
 module.exports = {
-    ...envConfig,
-    ...keys
-}
+  ...envConfig,
+  ...keys,
+};

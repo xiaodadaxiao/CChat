@@ -32,17 +32,22 @@ class AuthMiddleware {
 
   //更新token
   async updateToken(ctx, next) {
-    const { exp, cid } = ctx.tokenInfo;
-    const timeDiff = exp * 1000 - Date.now(); //token剩余时间（单位秒*1000=>毫秒）
-    const minTime = 1000 * 60 * 60 * 24 * 1; //结束时间小于1天内，则更新token
-    if (!(timeDiff < minTime)) {
-      //并不是小于一天，不用更新
-      // console.log('无需更新token', timeDiff);
-      await next();
-    } else {
-      // console.log('需要更新token');
-      ctx.newToken = getToken(cid);
-      await next();
+    try {
+      const { exp, cid } = ctx.tokenInfo;
+      const timeDiff = exp * 1000 - Date.now(); //token剩余时间（单位秒*1000=>毫秒）
+      const minTime = 1000 * 60 * 60 * 24 * 1; //结束时间小于1天内，则更新token
+      if (!(timeDiff < minTime)) {
+        //并不是小于一天，不用更新
+        // console.log('无需更新token', timeDiff);
+        await next();
+      } else {
+        // console.log('需要更新token');
+        ctx.newToken = setToken(cid);
+        await next();
+      }
+    } catch (error) {
+      console.log(error);
+      return ctx.app.emit('error', { message: '更新token失败' }, ctx);
     }
   }
 }
