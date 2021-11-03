@@ -111,7 +111,9 @@
                 <van-image width="40" height="40" :src="item.inviteeAvatarUrl" @click="goInfo('user', item.inviteeCid)" />
               </template>
               <template #right-icon>
-                <van-button type="primary" @click="handleGroupApply(item.gid, item.inviteeCid, 'agree')">同意</van-button>
+                <van-button type="primary" @click="handleGroupApply(item.gid, item.inviteeCid, 'agree', item.inviteedName)"
+                  >同意</van-button
+                >
                 <van-button type="danger" @click="handleGroupApply(item.gid, item.inviteeCid, 'reject')">拒绝</van-button>
               </template>
             </van-cell>
@@ -176,6 +178,7 @@ import { mapState, mapGetters } from 'vuex';
 import { getFriendList, getBacklist, removeBacklist } from '@/network/friend';
 import { getGroupList, searchGroup, agreeGroupApply, rejectGroupApply, createGroup } from '@/network/group';
 import { searchUser } from '@/network/user';
+import * as messageType from '@/constant/message';
 import Val from '@/utils/validator';
 export default {
   props: {},
@@ -273,12 +276,22 @@ export default {
       }
     },
     //处理入群申请
-    async handleGroupApply(gid, inviteeCid, type) {
+    async handleGroupApply(gid, inviteeCid, type, inviteedName) {
       const types = { agree: agreeGroupApply, reject: rejectGroupApply };
       try {
         const res = await types[type](gid, inviteeCid);
         if (res.status !== 200) return this.$toast.fail(res.message);
         this.$toast.success('操作成功');
+        // 如果是同意，通知到群聊
+        if (type == 'agree') {
+          await this.$socketEmit('inviteRoom', { inviteeCid, gid });
+          this.$socketEmit('message', {
+            content: `【${inviteedName}】加入群聊`,
+            chatId: gid,
+            chatType: messageType.CHAT_GROUP,
+            type: messageType.TIPS,
+          });
+        }
         //重新请求数据
         this.$store.dispatch('requestGroupApplyList');
       } catch (error) {
@@ -314,8 +327,13 @@ export default {
     },
   },
   computed: {
-    ...mapState(['friendApplyList', 'groupApplyList']),
+    ...mapState(['userCid', 'friendApplyList', 'groupApplyList']),
     ...mapGetters(['getApplyListCount']),
+  },
+  sockets: {
+    test() {
+      console.log('test socket');
+    },
   },
 };
 </script>

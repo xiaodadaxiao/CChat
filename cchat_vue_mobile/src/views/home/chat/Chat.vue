@@ -28,7 +28,12 @@
           <div :class="userCid !== item.talker_cid ? 'chat-item chat-item-l' : 'chat-item chat-item-r'">
             <!-- 时间 -->
             <div class="time">{{ item.showTime | chatDateFormat }}</div>
-            <div class="msg-main">
+            <!-- [提示内容] -->
+            <div class="tips-main" v-if="item.type == messageType.TIPS">
+              {{ item.content }}
+            </div>
+            <!-- [对话内容] -->
+            <div class="msg-main" v-else>
               <!-- 头像 -->
               <div class="avatar">
                 <van-image
@@ -57,7 +62,10 @@
                     v-if="item.type == messageType.IMAGE"
                     :src="item.content"
                     class="img"
+                    show-error
                   />
+                  <!-- 定位 -->
+                  <map-message v-if="item.type == messageType.LOCATION" :centerStr="item.content" />
                 </div>
               </div>
             </div>
@@ -66,7 +74,7 @@
       </van-list>
     </div>
     <!-- 操作栏 -->
-    <submit class="submit" @heightChange="submitHeightChange" @send="send" />
+    <submit class="submit" @heightChange="submitHeightChange" @send="sendMessage" />
   </div>
 </template>
 
@@ -80,6 +88,7 @@ import { getFriendMessage, getGroupMessage } from '@/network/message';
 import { handleChatDate, chatDateFormat } from '@/utils/filter';
 import * as messageType from '@/constant/message';
 import Submit from '@/components/submit/Submit';
+import MapMessage from '@/components/mapMessage/MapMessage';
 export default {
   props: {},
   data() {
@@ -98,7 +107,7 @@ export default {
       bottomHeight: 56, //底部高度
     };
   },
-  components: { Submit },
+  components: { Submit, 'map-message': MapMessage },
   async created() {
     const { type, id } = this.$route.params;
     this.chatType = type;
@@ -196,7 +205,7 @@ export default {
       this.scroll();
     },
     //输入栏发送信息
-    async send(type, value) {
+    async sendMessage(type, value) {
       try {
         await this.$socketEmit('message', { content: value, chatId: this.chatId, chatType: this.chatType, type });
         //添加本地数据
@@ -275,6 +284,13 @@ export default {
     height: 100%;
     overflow: scroll;
     padding: 0 2vw;
+    //提示文本
+    .tips-main {
+      color: @info-c;
+      text-align: center;
+      font-size: 4vw;
+      margin-bottom: 3vh;
+    }
     // 单个聊天发言(公共)
     .chat-item {
       //时间
@@ -337,6 +353,8 @@ export default {
             background-color: #fff;
             border-radius: 0 7px 7px 7px;
             margin-left: 2vw;
+            // 避免昵称干扰长度
+            display: inline-block;
           }
         }
       }

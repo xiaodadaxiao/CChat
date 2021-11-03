@@ -100,7 +100,9 @@ ALTER TABLE `group` ADD CONSTRAINT fk_leader_cid FOREIGN KEY(leader_cid) REFEREN
    FOREIGN KEY (`gid`) REFERENCES `group`(`gid`) ON DELETE CASCADE ON UPDATE CASCADE
   ); 
   #(补充删除信息时间)ALTER TABLE group_user ADD  `delete_time`  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
- 
+  #(修改最后聊天时间)  ALTER TABLE group_user MODIFY last_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+  
     #创建好友聊天信息表
   CREATE TABLE IF NOT EXISTS `friend_message` (
    `id` INT PRIMARY KEY AUTO_INCREMENT,  

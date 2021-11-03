@@ -13,7 +13,7 @@ class MessageService {
     WHERE  fm.updateAt=
                         (SELECT MAX(updateAt) FROM friend_message WHERE 
                         (talker_cid =f.ucid OR listener_cid =f.ucid) AND (talker_cid =f.fcid OR listener_cid =f.fcid))
-                        AND  TIMESTAMP(f.delete_time) < TIMESTAMP(fm.updateAt)
+                        AND  TIMESTAMP(f.delete_time) <= TIMESTAMP(fm.updateAt)
 
     `;
     const [result] = await connection.execute(statement, [cid]);
@@ -31,7 +31,7 @@ class MessageService {
     LEFT JOIN \`group\` gr ON gr.gid=g.gid
     LEFT JOIN group_user gu ON gu.cid=gm.talker_cid AND gu.gid =g.gid
     WHERE gm.updateAt =(SELECT MAX(gm.updateAt) FROM group_message gm WHERE g.gid =gm.listener_gid )
-        AND  TIMESTAMP(g.delete_time) < TIMESTAMP(gm.updateAt)
+        AND  TIMESTAMP(g.delete_time) <= TIMESTAMP(gm.updateAt)
     `;
     const [result] = await connection.execute(statement, [cid]);
     return result;

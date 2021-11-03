@@ -2,10 +2,7 @@
   <div class="submit-container" ref="submitRef">
     <!-- 输入框 -->
     <div class="submit">
-      <!-- 切换语音文字输入 -->
-      <van-icon name="more-o" size="34" @click="isShowInput = !isShowInput" />
-      <textarea v-model.trim="inputValue" rows="1" placeholder="输入信息" class="input" v-show="isShowInput" />
-      <div v-show="!isShowInput" class="input microphone">按住 说话</div>
+      <textarea v-model.trim="inputValue" rows="1" placeholder="输入信息" class="input" />
       <!-- 表情 -->
       <van-icon name="smile-o" size="34" :style="{ color: isShowEmjoi ? '#ff6900' : 'black' }" @click="clickShowEmjoi" />
       <!-- +号 -->
@@ -31,11 +28,37 @@
           <div>图片</div>
         </div>
       </van-uploader>
-      <div class="more-item">
+      <div class="more-item" @click="isShowLocation = true">
         <img :src="require('@/assets/img/position.png')" />
         <div>位置</div>
       </div>
     </div>
+    <!-- 定位 -->
+    <van-popup v-model="isShowLocation" position="bottom" :style="{ height: '70vh' }">
+      <van-divider>由于浏览器限制，仅提供IP模糊定位</van-divider>
+      <baidu-map :center="center" :zoom="zoom" class="location-view" ak="baiduMapKey" @ready="mapReady">
+        <bm-control anchor="BMAP_ANCHOR_TOP_RIGHT">
+          <van-button
+            :type="disSendLocation ? 'defalut' : 'primary'"
+            class="sendLocation"
+            :disabled="disSendLocation"
+            @click="sendLocation"
+            >发送定位</van-button
+          >
+        </bm-control>
+        <bm-geolocation
+          @locationSuccess="locationSuccess"
+          @locationError="locationError"
+          anchor="BMAP_ANCHOR_BOTTOM_RIGHT"
+          :locationIcon="{ url: require('@/assets/img/location.png'), size: { width: 48, height: 48 } }"
+        ></bm-geolocation>
+      </baidu-map>
+
+      <div class="lac-name">
+        <div class="show-one-row address">{{ locationInfo.formatted_address }}</div>
+        <div class="show-one-row business">{{ locationInfo.business }}</div>
+      </div>
+    </van-popup>
   </div>
 </template>
 
@@ -43,17 +66,32 @@
 import * as messageType from '@/constant/message';
 import emjoiList from './emjoiData';
 import { uploadImage } from '@/network/file';
+// 地图
+import BaiduMap from 'vue-baidu-map/components/map/Map.vue';
+import { BmGeolocation, BmControl } from 'vue-baidu-map';
+import { baiduMapKey } from '@/common/config';
+import { getLocation } from '@/network/location';
 export default {
   props: {},
   data() {
     return {
       inputValue: '',
       isShowBtn: false,
-      isShowInput: true, //语音和输入框切换
       isShowEmjoi: false, //切换展示表情
       isShowMore: false,
+      isShowLocation: false,
       emjoiList,
+      baiduMapKey, //百度地图key
+      center: { lng: 100, lat: 100 },
+      zoom: 3,
+      disSendLocation: true,
+      locationInfo: {},
     };
+  },
+  components: {
+    BaiduMap,
+    BmGeolocation,
+    BmControl,
   },
   mounted() {},
   methods: {
@@ -91,10 +129,42 @@ export default {
       }
     },
 
-    //发送
+    //点击文本发送
     send() {
       this.$emit('send', messageType.TEXT, this.inputValue);
       this.inputValue = '';
+    },
+    //地图加载完成
+    mapReady({ BMap, map }) {
+      // console.log(BMap, map);
+      this.center.lng = 116.404;
+      this.center.lat = 39.915;
+      this.zoom = 15;
+    },
+    //定位成功
+    locationSuccess({ point }) {
+      //console.log(point);
+      this.center.lat = point.lat;
+      this.center.lng = point.lng;
+      this.disSendLocation = false;
+      //获取位置的基本信息
+      getLocation(point).then(
+        res => {
+          console.log(res);
+          this.locationInfo = res.data.result;
+        },
+        err => console.log(err)
+      );
+    },
+    //定位失败
+    locationError() {
+      this.$toast.fail('定位失败');
+    },
+    //发送定位
+    sendLocation() {
+      // console.log(messageType.LOCATION, JSON.stringify(this.center));
+      // console.log(this.center);
+      this.$emit('send', messageType.LOCATION, JSON.stringify(this.center));
     },
   },
   watch: {
@@ -116,11 +186,6 @@ export default {
     .input {
       flex: 1;
       margin: 0 1vw;
-    }
-    .microphone {
-      text-align: center;
-      background-color: #fff;
-      line-height: 2;
     }
   }
   //表情栏
@@ -158,6 +223,28 @@ export default {
         width: 50%;
         margin-bottom: 1vw;
       }
+    }
+  }
+
+  //定位 百度地图
+  .location-view {
+    width: 100vw;
+    height: 50vh;
+    .BMap_geolocationIcon {
+      width: 50px !important;
+    }
+    .sendLocation {
+      margin: 2vw;
+    }
+  }
+  //地理位置
+  .lac-name {
+    padding: 2vw;
+    .address {
+      font-size: 5vw;
+    }
+    .business {
+      color: rgb(165, 152, 152);
     }
   }
 }

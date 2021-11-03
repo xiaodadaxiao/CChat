@@ -19,7 +19,7 @@ async function groupApply(socket, data, cb) {
   const [groupInfo] = await groupService.getGroupByGid(gid);
   if (!groupInfo) return;
   const leaderCid = groupInfo.leader_cid;
-
+  if (leaderCid == socket.cid) return socket.emit('groupApply');
   if (!Users.get(leaderCid)) return;
   socket.to(Users.get(leaderCid)).emit('groupApply');
 }

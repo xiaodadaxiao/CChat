@@ -231,6 +231,7 @@ export default {
         if (res.status !== 200) return this.$toast.fail(res.message);
         this.$toast.success('退出成功');
         this.$router.replace('/home');
+        this.$store.dispatch('requestIndexMessage');
       } catch (error) {
         if (error == 'cancel') return;
         console.log(error);
@@ -297,6 +298,7 @@ export default {
         if (res.status !== 200) return this.$toast.fail(res.message);
         this.$toast.success('解散成功');
         this.$router.replace('/home');
+        this.$store.dispatch('requestIndexMessage');
       } catch (error) {
         if (error == 'cancel') return;
         console.log(error);
@@ -305,7 +307,6 @@ export default {
     },
   },
   computed: {
-    //...mapState({ cid: 'userCid' }),
     //选中分享好友数量
     selectCount() {
       let count = 0;

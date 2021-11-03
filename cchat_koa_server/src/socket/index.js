@@ -65,7 +65,16 @@ io.on('connection', async socket => {
 
   //测试
   //socket.emit('test', 1);
-  //socket.emit('changeIndex', 1);
+
+  //邀请进入房间
+  socket.on('inviteRoom', (data, cb) => {
+    console.log('用户加入群聊');
+    const id = Users.get(data.inviteeCid);
+    if (!id) return cb('用户不在线');
+    const inviteSocket = io.of('/').sockets.get(id);
+    inviteSocket.join(data.gid);
+    cb('加入成功');
+  });
 });
 
 module.exports = server;

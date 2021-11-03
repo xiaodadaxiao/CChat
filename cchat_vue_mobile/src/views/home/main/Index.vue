@@ -137,6 +137,8 @@ export default {
           return content;
         case this.messageType.IMAGE:
           return '[图片]';
+        case this.messageType.LOCATION:
+          return '[位置]';
         default:
           return content;
       }
