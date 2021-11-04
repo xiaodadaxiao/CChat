@@ -1,15 +1,7 @@
 <template>
   <div class="index-container">
     <!-- 顶部导航栏 -->
-    <van-nav-bar title="CChat" fixed left-arrow @click-left="leftCick" @click-right="rightClick">
-      <template #left>
-        <van-image width="37" height="37" src="https://img01.yzcdn.cn/vant/cat.jpeg" />
-      </template>
-      <!-- 头部右侧 -->
-      <template #right>
-        <van-icon name="bar-chart-o" />
-      </template>
-    </van-nav-bar>
+    <van-nav-bar title="CChat" fixed @click-left="leftCick" @click-right="rightClick"> </van-nav-bar>
     <!-- 聊天列表 可刷新 -->
     <van-pull-refresh v-model="isLoading" @refresh="onRefresh" class="freshbox">
       <!-- 网络错误提示栏 -->
@@ -116,10 +108,10 @@ export default {
   },
   methods: {
     onRefresh() {
-      console.log('下拉刷新');
-      setTimeout(() => {
-        this.isLoading = false;
-      }, 500);
+      //下拉刷新
+      this.$store.dispatch('requestIndexMessage');
+      this.$store.dispatch('requestFriendApplyList');
+      this.$store.dispatch('requestGroupApplyList');
     },
     goChat(type, id) {
       this.$router.push(`/home/chat/${type}/${id}`);
@@ -169,6 +161,12 @@ export default {
   },
   computed: {
     ...mapState(['indexMessage', 'isConnectError']),
+  },
+  watch: {
+    indexMessage() {
+      console.log('indexMessage发生变化');
+      this.isLoading = false;
+    },
   },
 };
 </script>

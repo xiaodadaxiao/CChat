@@ -150,7 +150,6 @@ export default {
       //获取位置的基本信息
       getLocation(point).then(
         res => {
-          console.log(res);
           this.locationInfo = res.data.result;
         },
         err => console.log(err)
@@ -162,9 +161,8 @@ export default {
     },
     //发送定位
     sendLocation() {
-      // console.log(messageType.LOCATION, JSON.stringify(this.center));
-      // console.log(this.center);
       this.$emit('send', messageType.LOCATION, JSON.stringify(this.center));
+      this.isShowLocation = false;
     },
   },
   watch: {

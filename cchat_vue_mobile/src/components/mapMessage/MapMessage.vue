@@ -42,7 +42,6 @@ export default {
     //获取位置的基本信息
     getLocation(this.propCenter).then(
       res => {
-        console.log(res);
         this.locationInfo = res.data.result;
       },
       err => console.log(err)
@@ -52,7 +51,7 @@ export default {
     mapReady() {
       this.center.lng = this.propCenter.lng;
       this.center.lat = this.propCenter.lat;
-      this.zoom = 12;
+      this.zoom = 13;
     },
   },
   computed: {

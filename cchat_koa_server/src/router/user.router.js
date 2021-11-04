@@ -19,4 +19,24 @@ userRouter.get(
   userMiddleware.checkParamsCid, //检查cid
   userController.getUserInfo
 );
+
+//修改昵称
+userRouter.patch(
+  '/name/:name',
+  authMiddleware.checkToken, //检查token
+  userController.updateName
+);
+//修改签名
+userRouter.patch(
+  '/signature/:signature',
+  authMiddleware.checkToken, //检查token
+  userController.updateSignature
+);
+//修改密码
+userRouter.patch(
+  '/password',
+  authMiddleware.checkToken, //检查token
+  userController.updatePassword
+);
+
 module.exports = userRouter;

@@ -2,6 +2,8 @@ const userService = require('../service/user.service');
 const friendService = require('../service/friend.service');
 const userTypes = require('../constant/user.constant');
 const frinedTypes = require('../constant/friend.constant');
+const Val = require('../utils/validator');
+const { setMD5 } = require('../utils/crypto');
 class UserController {
   //查询用户是否存在
   async search(ctx, next) {
@@ -61,6 +63,63 @@ class UserController {
       return (ctx.body = res);
     } catch (error) {
       ctx.app.emit('error', { message: '请求用户信息失败' }, ctx);
+    }
+  }
+
+  //修改昵称
+  async updateName(ctx, name) {
+    try {
+      const cid = ctx.tokenInfo.cid;
+      const newName = ctx.request.params.name;
+      if (!new Val(newName).len(1, 30).end()) {
+        return ctx.app.emit('error', { message: '昵称长度应为1-30' }, ctx);
+      }
+      await userService.updateByKeyValue(cid, 'name', newName);
+      ctx.body = { status: 200, message: '修改成功' };
+    } catch (error) {
+      console.log(error);
+      ctx.app.emit('error', { message: '修改昵称错误' }, ctx);
+    }
+  }
+
+  //修改签名
+  async updateSignature(ctx, name) {
+    try {
+      const cid = ctx.tokenInfo.cid;
+      const signature = ctx.request.params.signature;
+      console.log(cid, signature);
+      if (!new Val(signature).len(1, 50).end()) {
+        return ctx.app.emit('error', { message: '签名长度应为1-50' }, ctx);
+      }
+      await userService.updateByKeyValue(cid, 'signature', signature);
+      ctx.body = { status: 200, message: '修改成功' };
+    } catch (error) {
+      console.log(error);
+      ctx.app.emit('error', { message: '修改签名错误' }, ctx);
+    }
+  }
+  //修改密码
+  async updatePassword(ctx, name) {
+    try {
+      const cid = ctx.tokenInfo.cid;
+      const { newPassword, oldPassword } = ctx.request.body;
+      const reg = /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/;
+      const vo = new Val(oldPassword).notnull().len(6, 50).reg(reg).end();
+      const vn = new Val(newPassword).notnull().len(6, 50).reg(reg).end();
+      if (!vo || !vn) {
+        return ctx.app.emit('error', { message: '密码至少为6位英文和字母' }, ctx);
+      }
+      //查询信息
+      const [userInfo] = await userService.getUserByCid(cid);
+      if (!userInfo) return ctx.app.emit('error', { message: '用户不存在' }, ctx);
+      //密码对比
+      if (setMD5(oldPassword) !== userInfo.password) return ctx.app.emit('error', { message: '密码错误' }, ctx);
+      const password = setMD5(newPassword);
+      await userService.updateByKeyValue(cid, 'password', password);
+      ctx.body = { status: 200, message: '修改成功' };
+    } catch (error) {
+      console.log(error);
+      ctx.app.emit('error', { message: '修改签名错误' }, ctx);
     }
   }
 }

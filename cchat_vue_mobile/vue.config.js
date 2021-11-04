@@ -1,5 +1,8 @@
 const path = require('path');
 
+//const isProduction = process.env.NODE_ENV == 'production';
+const isProduction = false;
+
 function resolvePath(dir) {
   return path.join(__dirname, dir);
 }
@@ -8,8 +11,6 @@ module.exports = {
   chainWebpack: config => {
     config.resolve.alias.set('@', resolvePath('src'));
   },
-  //hack: `true; @import './assets/css/common.less';`
-
   css: {
     loaderOptions: {
       less: {

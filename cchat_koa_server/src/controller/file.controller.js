@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const fileService = require('../service/file.service');
+const userService = require('../service/user.service');
 const fileTypes = require('../constant/file.constant');
 const { APP_HOST, APP_PORT } = require('../config');
 class FileController {
@@ -34,8 +35,11 @@ class FileController {
       await fs.writeFileSync(avatarPath, buffer);
       //写入数据库
       await fileService.saveImage(cid, fileTypes.FILE_AVATAR, filename, mimetype, size);
+      //更改用户头像
+      const avatarUrl = APP_HOST + ':' + APP_PORT + '/upload/avatar/' + filename;
+      await userService.updateByKeyValue(cid, 'avatar_url', avatarUrl);
       //返回数据
-      ctx.body = { status: 200, message: '上传成功', url: APP_HOST + ':' + APP_PORT + '/upload/avatar/' + filename };
+      ctx.body = { status: 200, message: '上传成功', url: avatarUrl };
     } catch (error) {
       console.log(error);
       ctx.app.emit('error', { message: '上传文件失败' }, ctx);

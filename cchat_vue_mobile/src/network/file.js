@@ -9,3 +9,12 @@ export function uploadImage(formData) {
     data: formData,
   });
 }
+//上传用户头像
+export function uploadAvatar(formData) {
+  return request({
+    url: '/upload/avatar',
+    headers: { 'Content-type': 'multipart/form-data' },
+    method: 'post',
+    data: formData,
+  });
+}

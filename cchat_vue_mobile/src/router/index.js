@@ -32,7 +32,8 @@ const routes = [
         children: [
           { path: 'index', component: components.Index },
           { path: 'friendslist', component: components.FriendsList },
-          { path: 'other', component: components.Other },
+          { path: 'moment', component: components.Moment },
+          { path: 'profile', component: components.Profile },
         ],
       },
       //用户信息
