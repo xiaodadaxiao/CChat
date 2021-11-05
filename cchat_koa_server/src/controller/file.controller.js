@@ -17,7 +17,7 @@ class FileController {
       //写入数据库
       await fileService.saveImage(cid, fileTypes.FILE_IMAGE, filename, mimetype, size);
       //返回数据
-      ctx.body = { status: 200, message: '上传成功', url: `http://${APP_HOST}:${APP_PORT}/upload/image/${filename}` };
+      ctx.body = { status: 200, message: '上传成功', url: `${APP_HOST}:${APP_PORT}/upload/image/${filename}` };
     } catch (error) {
       console.log(error);
       ctx.app.emit('error', { message: '上传文件失败' }, ctx);

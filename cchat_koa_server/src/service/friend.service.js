@@ -5,7 +5,7 @@ const frinendTypes = require('../constant/friend.constant');
 class FriendService {
   //得到好友列表
   async getFriendListByCid(cid) {
-    const statement = `SELECT * FROM friend f LEFT JOIN USER u ON f.friend_cid = u.cid  WHERE user_cid=?;`;
+    const statement = `SELECT * FROM friend f LEFT JOIN user u ON f.friend_cid = u.cid  WHERE user_cid=?;`;
     const [result] = await connection.execute(statement, [cid]);
     return result;
   }
@@ -68,8 +68,8 @@ class FriendService {
   async retrieveApplyList(cid, state) {
     const statement =
       state >= 0
-        ? `SELECT * FROM friend_apply  fa LEFT JOIN USER u ON fa.user_cid =u.cid WHERE fa.friend_cid=? AND fa.state=?`
-        : `SELECT * FROM friend_apply  fa LEFT JOIN USER u ON fa.user_cid =u.cid WHERE fa.friend_cid=?`;
+        ? `SELECT * FROM friend_apply  fa LEFT JOIN user u ON fa.user_cid =u.cid WHERE fa.friend_cid=? AND fa.state=?`
+        : `SELECT * FROM friend_apply  fa LEFT JOIN user u ON fa.user_cid =u.cid WHERE fa.friend_cid=?`;
     const arr = state >= 0 ? [cid, state] : [cid];
     const [result] = await connection.execute(statement, arr);
     return result;
@@ -85,7 +85,7 @@ class FriendService {
   //得到黑名单列表
   async getBackList(userCid) {
     const statement = `SELECT apply_id,friend_cid,nickname,f.state state, name,avatar_url 
-                        FROM friend  f LEFT JOIN USER u ON u.cid=f.friend_cid 
+                        FROM friend  f LEFT JOIN user u ON u.cid=f.friend_cid 
                         WHERE f.user_cid=10000 AND f.state=${frinendTypes.BLACKLIST}`;
     const [result] = await connection.execute(statement, [userCid]);
     return result;

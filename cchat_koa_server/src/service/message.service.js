@@ -7,7 +7,7 @@ class MessageService {
     SELECT f.fcid friend_cid,f.nickname,avatar_url, content, type ,updateAt,last_time
     FROM 
         (SELECT user_cid ucid ,friend_cid fcid,nickname,avatar_url,last_time,delete_time  FROM friend f
-          LEFT JOIN USER u ON f.friend_cid = u.cid  WHERE user_cid=?) f 
+          LEFT JOIN user u ON f.friend_cid = u.cid  WHERE user_cid=?) f 
     LEFT JOIN friend_message fm 
     ON (fm.talker_cid =f.ucid OR listener_cid =f.ucid) AND (talker_cid =f.fcid OR listener_cid =f.fcid)
     WHERE  fm.updateAt=
@@ -27,7 +27,7 @@ class MessageService {
        gu.nickname nickname,u.name name, gr.avatar_url avatar_url,g.last_time
     FROM (SELECT gu.cid ucid, gid,remind,gu.last_time,gu.delete_time delete_time FROM group_user gu WHERE gu.cid =?) g
     LEFT JOIN group_message gm ON g.gid =gm.listener_gid
-    LEFT JOIN USER u ON u.cid =gm.talker_cid
+    LEFT JOIN user u ON u.cid =gm.talker_cid
     LEFT JOIN \`group\` gr ON gr.gid=g.gid
     LEFT JOIN group_user gu ON gu.cid=gm.talker_cid AND gu.gid =g.gid
     WHERE gm.updateAt =(SELECT MAX(gm.updateAt) FROM group_message gm WHERE g.gid =gm.listener_gid )
@@ -63,7 +63,7 @@ class MessageService {
     const statement = `
     SELECT fm.id id, talker_cid,listener_cid,content,fm.type type,fm.updateAt updateAt,avatar_url
     FROM friend_message fm
-    LEFT JOIN USER u ON fm.talker_cid =u.cid
+    LEFT JOIN user u ON fm.talker_cid =u.cid
     WHERE (fm.talker_cid =? OR fm.listener_cid=?)AND (fm.talker_cid =? OR fm.listener_cid=?)
     ORDER BY fm.updateAt  DESC
     LIMIT ?,?
@@ -86,7 +86,7 @@ class MessageService {
     const statement = `
     SELECT gm.id id,talker_cid,content,avatar_url,gm.updateAt updateAt,gm.type type,gu.nickname nickname,u.name name,role
     FROM group_message gm 
-    LEFT JOIN USER u ON gm.talker_cid=u.cid
+    LEFT JOIN user u ON gm.talker_cid=u.cid
     LEFT JOIN group_user gu ON gu.cid=gm.talker_cid AND gu.gid =gm.listener_gid
     WHERE gm.listener_gid =?
     ORDER BY gm.updateAt DESC

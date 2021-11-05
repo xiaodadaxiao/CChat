@@ -22,7 +22,7 @@ class GroupService {
     u.name invitee_name ,u.avatar_url invitee_avatar_url
     FROM group_apply ga
     LEFT JOIN \`group\` g ON ga.gid=g.gid
-    RIGHT JOIN USER u ON u.cid  =ga.invitee_cid
+    RIGHT JOIN user u ON u.cid  =ga.invitee_cid
     WHERE g.leader_cid =? AND ga.state=${memberTypes.APPLY_WAITING}`;
     const [result] = await connection.execute(statement, [leaderCid]);
     return result;

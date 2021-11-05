@@ -1,8 +1,9 @@
 import axios from 'axios';
-import { baseURL } from '@/common/config';
+// import { baseURL } from '@/common/config';
+
 //axios实例
 const instance = axios.create({
-  baseURL,
+  baseURL: process.env.VUE_APP_BASE_URL,
   //请求时间最长
   timeout: 10000,
 });

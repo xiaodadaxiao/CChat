@@ -17,7 +17,7 @@ class MemberService {
   }
   //查询成员用户信息列表
   async getMembersUserInfoByGid(gid, offset = '0', number = '5') {
-    const statement = `SELECT *  FROM group_user gu LEFT JOIN  USER u ON gu.cid=u.cid WHERE gu.gid=? LIMIT ?,?;`;
+    const statement = `SELECT *  FROM group_user gu LEFT JOIN  user u ON gu.cid=u.cid WHERE gu.gid=? LIMIT ?,?;`;
     const result = await connection.execute(statement, [gid, offset, number]);
     return result[0];
   }
