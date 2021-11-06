@@ -8,7 +8,8 @@
       <van-notice-bar color="red" background="#ecf9ff" left-icon="info" v-show="isConnectError">
         网络连接失败
       </van-notice-bar>
-      <div class="chatlist">
+      <van-empty description="暂无聊天信息" class="freshbox" v-if="indexMessage.length == 0" />
+      <div class="chatlist" v-else>
         <!-- 单个聊天 -->
         <div v-for="item in indexMessage" :key="item.type == 'group' ? item.data.gid : item.data.friend_cid">
           <!-- 好友 -->
@@ -31,13 +32,7 @@
             </div>
             <!-- 右滑操作 -->
             <template #right>
-              <van-button
-                square
-                text="删除"
-                type="danger"
-                @click="deleteMessage(item.type, item.data.friend_cid)"
-                class="delete-button"
-              />
+              <van-button square text="删除" type="danger" @click="deleteMessage(item.type, item.data.friend_cid)" class="delete-button" />
             </template>
           </van-swipe-cell>
           <!-- 群 -->
@@ -51,13 +46,8 @@
                 <div class="value show-one-row">
                   {{
                     `
-                    ${
-                      item.data.remind == groupType.REMIND_NOT_DISTURB && item.data.count > 0 ? '[' + item.data.count + '条]' : ''
-                    }
-                    ${item.data.nickname ? item.data.nickname : item.data.name}:${getShowValue(
-                      item.data.content,
-                      item.data.type
-                    )}`
+                    ${item.data.remind == groupType.REMIND_NOT_DISTURB && item.data.count > 0 ? '[' + item.data.count + '条]' : ''}
+                    ${item.data.nickname ? item.data.nickname : item.data.name}:${getShowValue(item.data.content, item.data.type)}`
                   }}
                 </div>
               </div>
@@ -76,13 +66,7 @@
             </div>
             <!-- 右滑操作 -->
             <template #right>
-              <van-button
-                square
-                text="删除"
-                type="danger"
-                @click="deleteMessage(item.type, item.data.gid)"
-                class="delete-button"
-              />
+              <van-button square text="删除" type="danger" @click="deleteMessage(item.type, item.data.gid)" class="delete-button" />
             </template>
           </van-swipe-cell>
         </div>

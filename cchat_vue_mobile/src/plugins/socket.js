@@ -1,7 +1,7 @@
 import VueSocketIO from 'vue-socket.io';
 import SocketIO from 'socket.io-client';
 import store from '@/store';
-import { baseURL } from '@/common/config';
+// import { baseURL } from '@/common/config';
 // socket 连接参数
 const socketOptions = {
   autoConnect: false, // 自动连接
@@ -12,7 +12,7 @@ const socketOptions = {
 
 const vueSocketIO = new VueSocketIO({
   debug: false,
-  connection: SocketIO(baseURL, socketOptions),
+  connection: SocketIO(process.env.VUE_APP_BASE_URL, socketOptions),
   vuex: {
     store,
     actionPrefix: 'socket_',

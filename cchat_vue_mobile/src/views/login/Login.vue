@@ -1,6 +1,9 @@
 <template>
   <div class="login-container">
-    <div class="title">登录</div>
+    <div class="logo">
+      <van-image class="img" :src="require('@/assets/img/logo.png')"></van-image>
+    </div>
+
     <div class="inputBox">
       <van-form ref="form">
         <van-field
@@ -24,16 +27,7 @@
         />
 
         <div>
-          <van-button
-            round
-            block
-            :disabled="disBtn"
-            :loading="btnIsLoading"
-            color="#ff6900"
-            native-type="button"
-            @click="loginClick"
-            >登录</van-button
-          >
+          <van-button round block :disabled="disBtn" :loading="btnIsLoading" color="#ff6900" native-type="button" @click="loginClick">登录</van-button>
         </div>
       </van-form>
     </div>
@@ -95,26 +89,26 @@ export default {
   width: 100%;
   height: 100%;
   box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-content: center;
+}
+.logo {
+  margin-top: 5vh;
+  text-align: center;
+  height: 200px;
+  .img {
+    height: 100%;
+  }
 }
 .inputBox {
-  margin: 10vh 0;
+  margin: 5vh 5vw;
+  padding: 2vh 5vw;
 }
-.title {
-  color: @app-color;
-  font-weight: bold;
-  font-size: 10vw;
-  padding-bottom: 1vw;
-}
+
 .other {
   margin-top: 2vw;
-  font-size: 2vw;
+  font-size: 4vw;
   display: flex;
   justify-content: space-between;
-  padding: 0 2vw;
+  padding: 0 10vw;
   & > a {
     color: #999;
   }

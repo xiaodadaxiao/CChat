@@ -1,6 +1,8 @@
 <template>
-  <div class="container">
-    <div class="title">注册CID</div>
+  <div class="register-container">
+    <div class="logo">
+      <van-image class="img" :src="require('@/assets/img/logo.png')"></van-image>
+    </div>
     <div class="inputBox">
       <van-form validate-first :submit-on-enter="false" ref="form">
         <!-- 邮箱 -->
@@ -24,11 +26,7 @@
           :rules="[{ required: true, message: '验证码不能为空' }]"
         >
           <template #button>
-            <van-count-down
-              :time="time"
-              v-show="isShowCountDown"
-              @finish="countDownFinish"
-            />
+            <van-count-down :time="time" v-show="isShowCountDown" @finish="countDownFinish" />
             <van-button
               size="small"
               type="info"
@@ -49,9 +47,7 @@
           type="password"
           name="password"
           clearable
-          :rules="[
-            { pattern: passwordExp, message: '密码至少包含6位数字和英文' },
-          ]"
+          :rules="[{ pattern: passwordExp, message: '密码至少包含6位数字和英文' }]"
         />
         <!-- 二次密码 -->
         <van-field
@@ -91,21 +87,21 @@
 
 <script>
 //网络请求
-import { sendCode, register } from "@/network/register";
+import { sendCode, register } from '@/network/register';
 export default {
   data() {
     return {
-      email: "",
-      code: "",
-      password: "",
-      password2: "",
+      email: '',
+      code: '',
+      password: '',
+      password2: '',
       emailExp: /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/,
       passwordExp: /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/,
       disCodeBtn: false, //是否能点击发送验证码
       sendIsLoading: false, //验证按钮loading
       disRegiterBtn: false, //是否能点击注册按钮
       registerIsLoading: false, //注册按钮是否能loading
-      sendCodeBtnText: "发送验证码",
+      sendCodeBtnText: '发送验证码',
       isShowCountDown: false,
       time: 0, //发送验证码倒计时
     };
@@ -117,14 +113,14 @@ export default {
     //点击发送验证码
     async sendCode() {
       try {
-        await this.$refs.form.validate("email");
+        await this.$refs.form.validate('email');
         //发送请求
         this.sendIsLoading = true;
         const res = await sendCode(this.email);
         this.sendIsLoading = false;
         if (res.status === 200 || res.status === 202) {
-          this.$toast.success("发送成功");
-          this.sendCodeBtnText = "已发送";
+          this.$toast.success('发送成功');
+          this.sendCodeBtnText = '已发送';
           this.isShowCountDown = true;
           this.disCodeBtn = true;
           //计算倒计时
@@ -132,20 +128,20 @@ export default {
           return;
         }
         if (res.status === 201) {
-          this.$toast.fail("该邮箱用户已存在");
+          this.$toast.fail('该邮箱用户已存在');
           return;
         }
         throw new Error();
       } catch (error) {
         this.sendIsLoading = false;
-        this.$toast.fail("发送错误");
+        this.$toast.fail('发送错误');
         console.log(error);
       }
     },
     //倒计时结束
     countDownFinish() {
       this.disCodeBtn = false; //是否能点击发送验证码
-      this.sendCodeBtnText = "发送验证码";
+      this.sendCodeBtnText = '发送验证码';
       this.isShowCountDown = false;
     },
     //点击注册
@@ -160,10 +156,10 @@ export default {
         this.disRegiterBtn = false;
         this.registerIsLoading = false;
         if (res.status === 200) {
-          this.$toast.success("注册成功");
+          this.$toast.success('注册成功');
           const { cid, name, email } = res;
           this.$router.replace({
-            path: "/register_success",
+            path: '/register_success',
             query: { cid, name, email },
           });
         } else {
@@ -181,19 +177,30 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.container {
+.logo {
+  margin-top: 5vh;
+  text-align: center;
+  height: 200px;
+  .img {
+    height: 100%;
+  }
+}
+.register-container {
   width: 100%;
   height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  box-sizing: border-box;
 }
-
-.title {
-  color: @app-color;
-  font-weight: bold;
-  font-size: 10vw;
-  padding-bottom: 5vh;
+.logo {
+  margin-top: 5vh;
+  text-align: center;
+  height: 200px;
+  .img {
+    height: 100%;
+  }
+}
+.inputBox {
+  margin: 5vh 5vw;
+  padding: 2vh 5vw;
 }
 .login {
   margin-top: 5vh;
