@@ -1,13 +1,13 @@
 <template>
   <div class="container">
     <div class="succ">
-      <van-icon name="passed" size="250rem" color="#ff6900" />
+      <van-icon name="passed" size="30vw" color="#ff6900" />
       <div class="succText">恭喜你注册成功！</div>
     </div>
     <div class="info">
       <div>您的唯一CID为：</div>
       <div class="cid">{{ cid }}</div>
-      <div class="tips">请牢记您的CID，CID将作为您的登录账号和好友联系枢纽</div>
+      <div class="tips">请牢记您的CID，作为您的账号和好友联系枢纽</div>
     </div>
     <div class="login">
       <span>我已记住CID，去</span>
@@ -21,20 +21,20 @@ export default {
   props: {},
   data() {
     return {
-      cid: "",
+      cid: '',
     };
   },
   created() {
     const { cid } = this.$route.query;
     if (!cid) {
-      return this.$router.push("/login");
+      return this.$router.push('/login');
     }
 
     this.cid = cid;
   },
   methods: {
     goLogin() {
-      this.$router.push("/login?cid=" + this.cid);
+      this.$router.push('/login?cid=' + this.cid);
     },
   },
 };
@@ -44,30 +44,30 @@ export default {
 .container {
   width: 100%;
   height: 100%;
-  font-size: 45rem;
+  font-size: 5vw;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-content: center;
   box-sizing: border-box;
   text-align: center;
-  padding: 0 30rem;
+  padding: 0 5vw;
 }
 .succ {
   text-align: center;
   .succText {
-    font-size: 50rem;
+    font-size: 8vw;
   }
 }
 .info {
-  margin: 30rem 0;
+  margin: 5vh 0;
   .cid {
-    font-size: 150rem;
+    font-size: 20vw;
     color: @app-color;
   }
   .tips {
     color: #999;
-    font-size: 25rem;
+    font-size: 4vw;
   }
 }
 .login {

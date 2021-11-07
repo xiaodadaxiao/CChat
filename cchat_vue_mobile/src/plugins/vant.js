@@ -32,6 +32,7 @@ import {
   ActionSheet,
   NoticeBar,
   Uploader,
+  Lazyload,
 } from 'vant';
 
 const list = [
@@ -67,6 +68,7 @@ const list = [
   ActionSheet,
   NoticeBar,
   Uploader,
+  Lazyload,
 ];
 
 list.forEach(item => {

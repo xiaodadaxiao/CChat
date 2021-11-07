@@ -148,7 +148,6 @@ export default {
   },
   watch: {
     indexMessage() {
-      console.log('indexMessage发生变化');
       this.isLoading = false;
     },
   },

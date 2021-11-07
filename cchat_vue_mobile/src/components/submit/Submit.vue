@@ -6,13 +6,7 @@
       <!-- 表情 -->
       <van-icon name="smile-o" size="34" :style="{ color: isShowEmjoi ? '#ff6900' : 'black' }" @click="clickShowEmjoi" />
       <!-- +号 -->
-      <van-icon
-        name="add-o"
-        size="34"
-        v-show="!isShowBtn"
-        :style="{ color: isShowMore ? '#ff6900' : 'black' }"
-        @click="clickShowMore"
-      />
+      <van-icon name="add-o" size="34" v-show="!isShowBtn" :style="{ color: isShowMore ? '#ff6900' : 'black' }" @click="clickShowMore" />
       <van-button v-show="isShowBtn" type="primary" size="small" @click="send">发送</van-button>
     </div>
     <!-- 表情区-->
@@ -35,14 +29,10 @@
     </div>
     <!-- 定位 -->
     <van-popup v-model="isShowLocation" position="bottom" :style="{ height: '70vh' }">
-      <van-divider>由于浏览器限制，仅提供IP模糊定位</van-divider>
+      <van-divider>由于浏览器限制，仅提供模糊定位</van-divider>
       <baidu-map :center="center" :zoom="zoom" class="location-view" ak="baiduMapKey" @ready="mapReady">
         <bm-control anchor="BMAP_ANCHOR_TOP_RIGHT">
-          <van-button
-            :type="disSendLocation ? 'defalut' : 'primary'"
-            class="sendLocation"
-            :disabled="disSendLocation"
-            @click="sendLocation"
+          <van-button :type="disSendLocation ? 'defalut' : 'primary'" class="sendLocation" :disabled="disSendLocation" @click="sendLocation"
             >发送定位</van-button
           >
         </bm-control>
@@ -116,7 +106,7 @@ export default {
     },
     //上传图片
     async afterReadImage(file) {
-      if (file.file.size > 5 * 1024 * 1024) return this.$toast.fail('图片不能超过5M！');
+      if (file.file.size > 10 * 1024 * 1024) return this.$toast.fail('图片不能超过5M！');
       try {
         const formData = new FormData();
         formData.append('image', file.file);
@@ -136,10 +126,31 @@ export default {
     },
     //地图加载完成
     mapReady({ BMap, map }) {
-      // console.log(BMap, map);
       this.center.lng = 116.404;
       this.center.lat = 39.915;
       this.zoom = 15;
+      /* 定位 */
+      const _self = this;
+      var geolocation = new BMap.Geolocation();
+      // 开启SDK辅助定位
+      geolocation.enableSDKLocation();
+      geolocation.getCurrentPosition(function(r) {
+        if (this.getStatus() == BMAP_STATUS_SUCCESS) {
+          _self.center.lng = r.point.lng;
+          _self.center.lat = r.point.lat;
+          _self.disSendLocation = false;
+          //获取位置的基本信息
+          getLocation(r.point).then(
+            res => {
+              _self.locationInfo = res.data.result;
+            },
+            err => console.log(err)
+          );
+        } else {
+          this.$toast.fail('获取地址失败，请手动定位');
+          console.log('failed' + this.getStatus());
+        }
+      });
     },
     //定位成功
     locationSuccess({ point }) {

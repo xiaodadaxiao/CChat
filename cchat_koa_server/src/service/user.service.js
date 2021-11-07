@@ -14,10 +14,10 @@ class UserService {
     return result[0];
   }
   //创建用户
-  async create(email, cid, name, password) {
-    const statement = `INSERT INTO user (email,cid,name,password) VALUES (?,?,?,?);`;
+  async create(email, cid, name, password, url) {
+    const statement = `INSERT INTO user (email,cid,name,password,avatar_url) VALUES (?,?,?,?,?);`;
     //数据库操作，添加
-    const [result] = await connection.execute(statement, [email, cid, name, password]);
+    const [result] = await connection.execute(statement, [email, cid, name, password, url]);
     return result;
   }
 

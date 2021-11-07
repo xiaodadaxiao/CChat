@@ -3,7 +3,7 @@
     <van-nav-bar title="管理群" left-text="返回" left-arrow @click-left="onClickLeft" />
     <van-cell title="群名称" value-class="show-one-row" :value="groupInfo.gname" is-link @click="showChange('name')" />
     <van-cell title="群简介" value-class="show-one-row" :value="groupInfo.notice" is-link @click="showChange('notice')" />
-    <van-cell title="群头像" is-link />
+    <van-cell title="群头像" is-link @click="$refs.upload.chooseFile()" />
     <van-cell title="群成员" :value="groupInfo.count" is-link @click="showList" />
     <!-- 修改界面 -->
     <van-popup v-model="isShowChange" position="bottom" :style="{ height: '50vh' }">
@@ -15,16 +15,7 @@
       </van-field>
       <!-- 修改简介 -->
       <div v-show="changeType == 'notice'">
-        <van-field
-          v-model.trim="inputNotice"
-          center
-          type="textarea"
-          maxlength="300"
-          clearable
-          placeholder="输入新群简介"
-          rows="5"
-          show-word-limit
-        />
+        <van-field v-model.trim="inputNotice" center type="textarea" maxlength="300" clearable placeholder="输入新群简介" rows="5" show-word-limit />
         <van-button size="small" type="primary" @click="changeNotice">修改群简介</van-button>
       </div>
     </van-popup>
@@ -37,29 +28,19 @@
         </template>
         <template #right-icon>
           <van-tag type="danger" v-if="member.role == groupTypes.USER_ROLE_LEADER">群主</van-tag>
-          <van-button
-            icon="warning-o "
-            v-if="member.role != groupTypes.USER_ROLE_LEADER"
-            type="warning"
-            size="small"
-            @click="changeUser('ban', member.cid)"
-          />
-          <van-button
-            icon="delete"
-            v-if="member.role != groupTypes.USER_ROLE_LEADER"
-            type="danger"
-            size="small"
-            @click="changeUser('delete', member.cid)"
-          />
+          <van-button icon="warning-o " v-if="member.role != groupTypes.USER_ROLE_LEADER" type="warning" size="small" @click="changeUser('ban', member.cid)" />
+          <van-button icon="delete" v-if="member.role != groupTypes.USER_ROLE_LEADER" type="danger" size="small" @click="changeUser('delete', member.cid)" />
         </template>
       </van-cell>
     </van-popup>
+    <van-uploader accept="image/*" :after-read="afterReadImage" ref="upload" preview-size="0" />
   </div>
 </template>
 
 <script>
 import * as groupTypes from '@/constant/group';
 import { updateGname, updateNotice, getGroupInfo, getMemberList, removeUser } from '@/network/group';
+import { uploadGroupAvatar } from '@/network/file';
 export default {
   data() {
     return {
@@ -168,6 +149,21 @@ export default {
         });
         if (confirm != 'confirm') return;
         this.$toast.fail('抱歉，禁言功能未开放');
+      }
+    },
+    //上传群头像
+    async afterReadImage(file) {
+      console.log(file);
+      if (file.file.size > 10 * 1024 * 1024) return this.$toast.fail('图片不能超过10M！');
+      try {
+        const formData = new FormData();
+        formData.append('avatar', file.file);
+        const res = await uploadGroupAvatar(this.gid, formData);
+        if (res.status !== 200) return this.$toast.fail(res.message);
+        this.$toast.success('上传成功');
+      } catch (error) {
+        console.log(error);
+        this.$toast.fail('发生错误');
       }
     },
   },

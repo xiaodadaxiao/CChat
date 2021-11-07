@@ -77,7 +77,7 @@
 <script>
 import { mapState } from 'vuex';
 import { getUserInfo, changeName, changeSignature, changePassword } from '@/network/user';
-import { uploadAvatar } from '@/network/file';
+import { uploadUserAvatar } from '@/network/file';
 import Val from '@/utils/validator';
 //展示图片函数
 import { ImagePreview } from 'vant';
@@ -197,11 +197,11 @@ export default {
     //上传图片
     async afterReadImage(file) {
       console.log(file);
-      if (file.file.size > 5 * 1024 * 1024) return this.$toast.fail('图片不能超过5M！');
+      if (file.file.size > 10 * 1024 * 1024) return this.$toast.fail('图片不能超过10M！');
       try {
         const formData = new FormData();
         formData.append('avatar', file.file);
-        const res = await uploadAvatar(formData);
+        const res = await uploadUserAvatar(formData);
         if (res.status !== 200) return this.$toast.fail(res.message);
         this.$toast.success('上传成功');
         this.init();

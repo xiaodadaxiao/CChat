@@ -9,7 +9,7 @@ const limits = {
 
 //保存聊天图片
 const uploadImage = multer({ limits }).single('image');
-//保存用户头像
+//保存头像
 const uploadAvatar = multer({ limits }).single('avatar');
 
 module.exports = { uploadImage, uploadAvatar };

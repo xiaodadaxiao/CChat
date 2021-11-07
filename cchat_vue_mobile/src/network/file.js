@@ -10,9 +10,18 @@ export function uploadImage(formData) {
   });
 }
 //上传用户头像
-export function uploadAvatar(formData) {
+export function uploadUserAvatar(formData) {
   return request({
     url: '/upload/avatar',
+    headers: { 'Content-type': 'multipart/form-data' },
+    method: 'post',
+    data: formData,
+  });
+}
+//上传群头像
+export function uploadGroupAvatar(gid, formData) {
+  return request({
+    url: '/upload/group/' + gid,
     headers: { 'Content-type': 'multipart/form-data' },
     method: 'post',
     data: formData,

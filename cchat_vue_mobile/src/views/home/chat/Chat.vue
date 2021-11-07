@@ -36,13 +36,7 @@
             <div class="msg-main" v-else>
               <!-- 头像 -->
               <div class="avatar">
-                <van-image
-                  width="45"
-                  class="avatar-img"
-                  height="45"
-                  @click="goInfo('user', item.talker_cid)"
-                  :src="item.avatar_url"
-                />
+                <van-image width="45" class="avatar-img" height="45" @click="goInfo('user', item.talker_cid)" :src="item.avatar_url" />
               </div>
               <!-- 名字和内容 -->
               <div class="info">
@@ -56,14 +50,16 @@
                     {{ item.content }}
                   </div>
                   <!-- 图片 -->
-                  <van-image
+                  <!-- <van-image
                     fit="scale-down"
                     @click="clickImg(item.content)"
                     v-if="item.type == messageType.IMAGE"
                     :src="item.content"
                     class="img"
                     show-error
-                  />
+                    lazy-load
+                  /> -->
+                  <img @click="clickImg(item.content)" v-if="item.type == messageType.IMAGE" :src="item.content" class="img" alt="图片加载失败" />
                   <!-- 定位 -->
                   <map-message v-if="item.type == messageType.LOCATION" :centerStr="item.content" />
                 </div>
@@ -334,6 +330,8 @@ export default {
             //图片
             .img {
               display: block;
+              width: 100%;
+              object-fit: contain;
             }
           }
         }
